@@ -20,7 +20,7 @@ def doEVD(A):
 
     return Q, eig, invQ
 
-# A rank-n approximation of A
+# A rank-n real, approximation of A
 def approximate(Q, eig, invQ, n):	 
     dim = eig.shape[0]
     approxA = np.zeros((dim, dim), dtype = np.complex)
@@ -44,16 +44,8 @@ if __name__ == '__main__':
     print 'The image is of shape', input_image.shape
 
     Q, eig, invQ = doEVD(input_image)
-    for i in range(eig.shape[0]):
-        if np.isreal(eig[i]) == True:
-            print 'eigenvalue %d is real' % i
-            if np.sum(np.isreal(Q[:, i])) == eig.shape[0]:
-                print 'eigenvector %d is real' % i
-                print np.sum(np.isreal(invQ[i, :]))
-                print invQ[i, :]
-                if np.sum(np.isreal(invQ[i, :])) == eig.shape[0]:
-                    print 'inverse row %d is real' % i
 
     approxA = approximate(Q, eig, invQ, rank) * 255.0
+
     cv2.imwrite('recon.jpg', approxA)
     
