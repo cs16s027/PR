@@ -1,20 +1,6 @@
 
 **Problem 1 : Image Reconstruction**
 
-**1.1**
-
-Perform Singular Value Decomposition on both square and rectangular images (given below)
-
-- by converting the image to grayscale.
-
-- separately on each color bands.
-
-- after concatenating the 8bit R,G,B channel to form a 24bit number. Experiment with the order of concatenation and analyze. 
-
-Reconstruct the matrix using top N singular vectors corresponding to top N singular values. Experiment with the values of N. Also try random N singular values instead of top N.
-
-**1.2**
-
 Perform Eigen Value Decomposition (If image A is rectangular, use A'A) on both square and rectangular images given to your group
 
 - by converting the image to grayscale.
