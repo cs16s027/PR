@@ -5,10 +5,6 @@ Perform Eigen Value Decomposition (If image A is rectangular, use A'A) on both s
 
 - by converting the image to grayscale.
 
-- separately on each color bands.
-
-- after concatenating the 8bit R,G,B channel to form a 24bit number. Experiment with the order of concatenation and analyze. 
-
 Reconstruct the matrix using top N eigen vectors corresponding to top N eigen values. Experiment with the values of N. Also try random N eigen values instead of top N.
 
 **Task Requirements**

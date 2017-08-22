@@ -84,6 +84,17 @@ def plotEigval(eig, eigenplot):
     plt.title('Eigenvalue (log) .vs. Eigen-index')
     plt.savefig(eigenplot)
 
+def plotErrorDecay(ranks, errors, errorplot):
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.plot(ranks, errors)
+    plt.xlim([0, 260])
+
+    plt.xlabel('Eigen-index')
+    plt.ylabel('Relative-Error')
+    plt.title('Relative-Error .vs. Eigen-index')
+    plt.savefig(errorplot)
+
 if __name__ == '__main__':
 
     if len(sys.argv) < 3:
@@ -92,9 +103,10 @@ if __name__ == '__main__':
         print '<rank> : order of approximation'
         print '<output-image> : path to output image'
         print '<eigenplot> : path to save plot of eigenvalues'
+        print '<errorplot> : path to save plot of errors'
         print '<random> : Y or N, if Y it will take random eigenvalues'
         exit()
-    _, input_image, rank, output_image, eigenplot, random = sys.argv
+    _, input_image, rank, output_image, eigenplot, errorplot, random = sys.argv
 
     # Read image as matrix A; normalize it
     A = cv2.imread(input_image, 0) / 255.0
@@ -117,3 +129,17 @@ if __name__ == '__main__':
     # Write the reconstructed images to disk; re-scale images before writing
     writeImages(A * 255.0, approxA * 255.0, errorA * 255.0, rank, error, random, output_image)
 
+    ranks = np.arange(5, 250, 5)
+    errors = []
+    for rank in ranks:
+        # Construct the approximate matrix with given rank
+        approxA = approximate(Q, eig, invQ, rank, random)
+        # Compute the error matrix
+        errorA = A - approxA
+        # Compute the relative error in the approximation
+        error = norm(errorA) / norm(A)
+        # Populate errors list
+        errors.append(error)
+
+    plotErrorDecay(ranks, errors, errorplot) 
+    
