@@ -71,10 +71,11 @@ def plotEigval(eig, eigenplot):
 if __name__ == '__main__':
 
     if len(sys.argv) < 3:
-        print 'usage : python scripts/eigen.py <input-image> <rank> <output-image> <eigenplot>'
+        print 'usage : python scripts/basiEVD.py <input-image> <rank> <output-image> <eigenplot>'
         print '<input-image> : path to input image'
         print '<rank> : order of approximation'
         print '<output-image> : path to output image'
+        print '<eigenplot> : path to save plot of eigenvalues'
         exit()
     _, input_image, rank, output_image, eigenplot = sys.argv
 
