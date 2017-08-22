@@ -22,11 +22,17 @@ def doEVD(A):
     return Q, eig, invQ
 
 # A rank-n real, approximation of A
-def approximate(Q, eig, invQ, n):	 
+def approximate(Q, eig, invQ, n, random = False):
     dim = eig.shape[0]
     approxA = np.zeros((dim, dim), dtype = np.complex)
 
-    for i in range(n):
+    indices = range(dim)
+    #np.random.seed(1)
+    if random == True:
+        np.random.shuffle(indices)
+
+    for index in range(n):
+        i = indices[index]
         q_i = Q[:, i].reshape((dim, 1))
         invQ_i = invQ[i, :].reshape((1, dim))
         qinvQ_i = q_i * invQ_i
@@ -43,13 +49,23 @@ def norm(A):
             val += np.float32(A[x][y]) * np.float32(A[x][y])
     return np.sqrt(val)
 
-def writeImages(approxA, errorA, path):
+def writeImages(A, approxA, errorA, rank, error, random, path):
     row, col = approxA.shape
     pad = 10
-    image = np.zeros((row, col * 2 + pad))
-    image[ : , 0 : col] = approxA
-    image[ : , col + pad : 2 * col + pad] = errorA 
+    image = np.zeros((row + 200, 3 * col + 2 * pad))
+    image[0 : row, 0 : col] = A
+    image[0 : row , col + pad : 2 * col + pad] = approxA
+    image[0 : row, 2 * col + 2 * pad : 3 * col + 2 * pad] = errorA 
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    cv2.putText(image, 'Orig', (100, col + 40), font, 1, (255,255,255), 2)
+    cv2.putText(image, 'Recon', (340, col + 40), font, 1, (255,255,255), 2)
+    cv2.putText(image, 'Error', (620, col + 40), font, 1, (255,255,255), 2)
+    cv2.putText(image, '# Eigenvalues = %d' % rank, (220, col + 80), font, 1, (255, 255, 255), 2)
+    cv2.putText(image, 'Rel Error = %s' % str(error)[:4], (250, col + 130), font, 1, (255, 255, 255), 2)
+    cv2.putText(image, 'Random = %s' % random, (250, col + 170), font, 1, (255, 255, 255), 2)   
+
     cv2.imwrite(path, image)
+
 
 def plotEigval(eig, eigenplot):
     eig_index = range(len(eig) + 1)[1 : ]
@@ -71,13 +87,14 @@ def plotEigval(eig, eigenplot):
 if __name__ == '__main__':
 
     if len(sys.argv) < 3:
-        print 'usage : python scripts/basiEVD.py <input-image> <rank> <output-image> <eigenplot>'
+        print 'usage : python scripts/basiEVD.py <input-image> <rank> <output-image> <eigenplot> <random>'
         print '<input-image> : path to input image'
         print '<rank> : order of approximation'
         print '<output-image> : path to output image'
         print '<eigenplot> : path to save plot of eigenvalues'
+        print '<random> : Y or N, if Y it will take random eigenvalues'
         exit()
-    _, input_image, rank, output_image, eigenplot = sys.argv
+    _, input_image, rank, output_image, eigenplot, random = sys.argv
 
     # Read image as matrix A; normalize it
     A = cv2.imread(input_image, 0) / 255.0
@@ -88,13 +105,15 @@ if __name__ == '__main__':
     plotEigval(eig, eigenplot)
     # Order of approximation
     rank = np.int(rank)
+    # Random N eigenvalues
+    random = True if random == 'Y' else False
     # Construct the approximate matrix with given rank
-    approxA = approximate(Q, eig, invQ, rank)
+    approxA = approximate(Q, eig, invQ, rank, random)
     # Compute the error matrix
     errorA = A - approxA
     # Compute the relative error in the approximation
     error = norm(errorA) / norm(A)
     print 'Relative error = %f' % error
     # Write the reconstructed images to disk; re-scale images before writing
-    writeImages(approxA * 255.0, errorA * 255.0, output_image)
+    writeImages(A * 255.0, approxA * 255.0, errorA * 255.0, rank, error, random, output_image)
 
