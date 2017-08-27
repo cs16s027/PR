@@ -12,6 +12,9 @@ from matplotlib import pyplot as plt
 def doEVD(A):
     
     eig, Q = np.linalg.eig(A)
+    ids = eig.argsort()[::-1]
+    eig = eig[ids]
+    Q = Q[:, ids]
 
     try:
         invQ = np.linalg.inv(Q)
@@ -23,7 +26,7 @@ def doEVD(A):
 
 # Check if matrices A and B are orthogonal
 def check(A, B):
-    X = np.matmul(A, B)
+    X = np.dot(A, B)
     try:
         assert np.array_equal(np.rint(X), np.eye(A.shape[0]))
         return True
@@ -33,25 +36,31 @@ def check(A, B):
 
 # Do an SVD on A
 def doSVD(A):
-    thresh = 1e-6
-    V, eig, Vt = doEVD(np.dot(A.T, A))
-    V, eig, Vt = np.real(V), np.absolute(np.real(eig)), np.real(Vt)
+    print 'Shape of matrix A =', A.shape
+    # Get the symmetric matrix A'A
+    Asym = np.dot(A.T, A)
+    print 'Shape of A\'A =', Asym.shape
+    # Get the EVD of A'A
+    V, eig, Vt = doEVD(Asym)
+    # Check if V and Vt are orthogonal
     check(V, Vt)
-    lamb = np.sqrt(eig)
-    U = []
-    for i in range(V.shape[0]):
-        if lamb[i] > thresh:
-            U.append(np.matmul(A, V) / lamb[i])
-    U = np.array(U).T
-    #U = np.matmul(A, V) / lamb
-    check(U, U.T)
-    exit()
-    return U, lamb, Vt
+    # Number of eigenvalues
+    print 'Number of eigenvalues of A\'A =', eig.shape[0]
+    # Get singular values
+    sings = np.sqrt(eig)
+    # Use A * V = U * sings, to get U
+    U = np.dot(A, V) / sings
+    # Check if U and U' are orthogonal
+    check(U.T, U)
+    # Singular matrix
+    sing_matrix = np.diag(sings)
+    # A = U * sing_matrix * Vt
+    return U, sings, Vt
 
 # A rank-n real, approximation of A
-def approximate(U, lambdas, Q, n, random = False):
+def approximate(U, sings, Q, n, random = False):
     dimX, dimY = U.shape[0], Q.shape[1]
-    dim = lambdas.shape[0]
+    dim = sings.shape[0]
     approxA = np.zeros((dimX, dimY))
 
     indices = range(dim)
@@ -63,8 +72,8 @@ def approximate(U, lambdas, Q, n, random = False):
         i = indices[index]
         u_i = U[:, i].reshape((dimX, 1))
         q_i = Q[i, :].reshape((1, dimY))
-        uq_i = q_i * q_i
-        approxA += lambdas[i] * uq_i
+        uq_i = u_i * q_i
+        approxA += sings[i] * uq_i
 
     return approxA
 
@@ -95,28 +104,25 @@ def writeImages(A, approxA, errorA, rank, error, random, path):
     cv2.imwrite(path, image)
 
 
-def plotSingularval(eig, singularplot):
-    eig_index = range(len(eig) + 1)[1 : ]
-    abs_eig = []
-    for i in range(len(eig)):
-        abs_eig.append(np.absolute(eig[i]))
+def plotSingularval(sings, singularplot):
+    sings_index = range(len(sings) + 1)[1 : ]
 
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     ax.set_yscale('log')
-    ax.plot(eig_index, abs_eig)
-    plt.xlim([0, 260])
+    ax.plot(sings_index, sings)
+    plt.xlim([0, sings.shape[0]])
 
     plt.xlabel('Singular-index')
-    plt.ylabel('Singularvalue (log)')
-    plt.title('Singularvalue (log) .vs. Singular-index')
+    plt.ylabel('Singular-value (log)')
+    plt.title('Singular-value (log) .vs. Singular-index')
     plt.savefig(singularplot)
 
 def plotErrorDecay(ranks, errors, errorplot):
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     ax.plot(ranks, errors)
-    plt.xlim([0, 260])
+    plt.xlim([0, ranks[-1]])
 
     plt.xlabel('Singular-index')
     plt.ylabel('Relative-Error')
@@ -126,7 +132,7 @@ def plotErrorDecay(ranks, errors, errorplot):
 if __name__ == '__main__':
 
     if len(sys.argv) < 3:
-        print 'usage : python scripts/basiEVD.py <input-image> <rank> <output-image> <singularplot> <random>'
+        print 'usage : python scripts/basiEVD.py <input-image> <rank> <output-image> <singularplot> <errorplot> <random>'
         print '<input-image> : path to input image'
         print '<rank> : order of approximation'
         print '<output-image> : path to output image'
@@ -139,29 +145,42 @@ if __name__ == '__main__':
     # Read image as matrix A; normalize it
     A = cv2.imread(input_image, 0) / 255.0
     print 'The image is of shape', A.shape
+    # Work with a smaller A'A matrix
+    transpose_flag = False
+    if A.shape[0] < A.shape[1]:
+        A = A.T
+        transpose_flag = True
+    print 'The matrix A is of shape', A.shape
     # Do Singular Value Decomposition of A
-    U, lamb, Q = doSVD(A)
+    U, sings, Q = doSVD(A)
     # Plot the singularvalues of A
-    plotSingularval(lamb, singularplot)
+    plotSingularval(sings, singularplot)
     # Order of approximation
     rank = np.int(rank)
     # Random N singularvalues
     random = True if random == 'Y' else False
     # Construct the approximate matrix with given rank
-    approxA = approximate(U, lamb, Q, rank, random)
+    approxA = approximate(U, sings, Q, rank, random)
     # Compute the error matrix
     errorA = A - approxA
     # Compute the relative error in the approximation
     error = norm(errorA) / norm(A)
     print 'Relative error = %f' % error
+    # Reverse transpose
+    if transpose_flag == True:
+        A = A.T
+        approxA = approxA.T
+        errorA = errorA.T
     # Write the reconstructed images to disk; re-scale images before writing
     writeImages(A * 255.0, approxA * 255.0, errorA * 255.0, rank, error, random, output_image)
+    ################################################################################################333
 
-    ranks = np.arange(5, 250, 5)
+    exit()
+    ranks = np.arange(5, sings.shape[0], 5)
     errors = []
     for rank in ranks:
         # Construct the approximate matrix with given rank
-        approxA = approximate(U, lamb, Q, rank, random)
+        approxA = approximate(U, sings, Q, rank, random)
         # Compute the error matrix
         errorA = A - approxA
         # Compute the relative error in the approximation

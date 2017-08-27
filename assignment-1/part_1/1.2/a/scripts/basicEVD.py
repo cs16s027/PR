@@ -12,6 +12,9 @@ from matplotlib import pyplot as plt
 def doEVD(A):
     
     eig, Q = np.linalg.eig(A)
+    ids = np.absolute(eig).argsort()[::-1]
+    eig = eig[ids]
+    Q = Q[:, ids]
 
     try:
         invQ = np.linalg.inv(Q)
@@ -129,6 +132,8 @@ if __name__ == '__main__':
     # Write the reconstructed images to disk; re-scale images before writing
     writeImages(A * 255.0, approxA * 255.0, errorA * 255.0, rank, error, random, output_image)
 
+    ##############################################################################################33
+    exit()
     ranks = np.arange(5, 250, 5)
     errors = []
     for rank in ranks:
