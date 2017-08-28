@@ -64,6 +64,31 @@ def partitionData(data):
 
     return data
 
+# Stochastic gradient descent
+def train(train_data, valid_data):
+    # Data
+    train_X, train_Y = train_data
+    valid_X, valid_Y = valid_data
+
+    # Variable initialization
+    params_dim = train_X.shape[1]
+    beta = np.random.randn((params_dim))
+
+    # Hyperparameters
+    epochs = 20
+    batch_size = 32
+    lr = 0.001
+    
+    # Training
+    for epoch in range(epochs):
+        batches = float(epochs) / batch_size
+        for batch in batches:
+            indices = [batch * batch_size : (batch + 1) * batch_size]
+            #X = train_X[batch * batch_size : (batch + 1) * batch_size]
+            #Y = train_Y[batch * batch_size : (batch + 1) * batch_size]
+            beta += lr * np.sum((Y[indices] - np.dot(X[i, :], beta)) * X[indices, :])
+        
+
 if __name__ == '__main__':
     X, Y = loadData('./data/20_3.txt')
     features = getFeatures(X, 2)

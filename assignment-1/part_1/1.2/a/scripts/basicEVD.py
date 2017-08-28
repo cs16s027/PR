@@ -22,14 +22,29 @@ def doEVD(A):
         print 'Exiting: The input matrix is not invertible'
         exit()
 
+    '''
+    real_eig = []
+    real_Q = []
+    real_invQ = []
+    for i in range(eig.shape[0]):
+        if np.isreal(eig[i]):
+            real_eig.append(np.real(eig[i]))
+            real_Q.append(np.real(Q[:, i]))
+            real_invQ.append(np.real(invQ[i, :]))
+    
+    real_eig, real_Q, real_invQ = np.array(real_eig), np.array(real_Q).T, np.array(real_invQ)
+    print real_eig.shape, real_Q.shape, real_invQ.shape
+    return real_Q, real_eig, real_invQ
+    '''
     return Q, eig, invQ
 
 # A rank-n real, approximation of A
 def approximate(Q, eig, invQ, n, random = False):
-    dim = eig.shape[0]
+    dim = Q.shape[0]
     approxA = np.zeros((dim, dim), dtype = np.complex)
 
-    indices = range(dim)
+    eig_count = eig.shape[0]
+    indices = range(eig_count)
     #np.random.seed(1)
     if random == True:
         np.random.shuffle(indices)
@@ -38,7 +53,7 @@ def approximate(Q, eig, invQ, n, random = False):
         i = indices[index]
         q_i = Q[:, i].reshape((dim, 1))
         invQ_i = invQ[i, :].reshape((1, dim))
-        qinvQ_i = q_i * invQ_i
+        qinvQ_i = np.dot(q_i, invQ_i)
         approxA += eig[i] * qinvQ_i
 
     return np.real(approxA)
@@ -80,7 +95,7 @@ def plotEigval(eig, eigenplot):
     ax = fig.add_subplot(1, 1, 1)
     ax.set_yscale('log')
     ax.plot(eig_index, abs_eig)
-    plt.xlim([0, 260])
+    plt.xlim([0, len(eig)])
 
     plt.xlabel('Eigen-index')
     plt.ylabel('Eigenvalue (log)')
@@ -91,7 +106,7 @@ def plotErrorDecay(ranks, errors, errorplot):
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     ax.plot(ranks, errors)
-    plt.xlim([0, 260])
+    plt.xlim([0, ranks[-1]])
 
     plt.xlabel('Eigen-index')
     plt.ylabel('Relative-Error')
@@ -133,8 +148,7 @@ if __name__ == '__main__':
     writeImages(A * 255.0, approxA * 255.0, errorA * 255.0, rank, error, random, output_image)
 
     ##############################################################################################33
-    exit()
-    ranks = np.arange(5, 250, 5)
+    ranks = np.arange(1, 256, 1)
     errors = []
     for rank in ranks:
         # Construct the approximate matrix with given rank
