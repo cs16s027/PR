@@ -1,3 +1,4 @@
+import sys
 import itertools
 import numpy as np
 from matplotlib import pyplot as plt
@@ -65,7 +66,7 @@ def partitionData(data):
     return data
 
 # Stochastic gradient descent
-def train(train_data, valid_data):
+def train(train_data, valid_data, epochs, final_model, finetune = False, initial_model = False):
     # Data
     train_X, train_Y = train_data
     train_size = train_X.shape[0]
@@ -76,14 +77,17 @@ def train(train_data, valid_data):
     print 'Validating on %d data-points' % valid_size
 
     # Variable initialization
-    params_dim = train_X.shape[1]
     print '\n### Variable Initialization ###'
-    print 'Number of parameters = %d' % params_dim
-    beta = np.zeros(params_dim)
-    print 'Zero initialization'
+    if finetune == True:
+        beta = np.load(initial_model)
+        print 'Pre-trained params'
+    else:
+        params_dim = train_X.shape[1]    
+        print 'Number of parameters = %d' % params_dim
+        beta = np.zeros(params_dim)
+        print 'Zero initialization'
 
     # Hyperparameters
-    epochs = 100
     batch_size = 16
     lr = 0.001
     patience = 5
@@ -110,7 +114,6 @@ def train(train_data, valid_data):
             beta += lr * batch_loss_grad
         epoch_loss += batch_loss / train_size 
         print 'Training loss after epoch %d = %f' % ((epoch + 1), epoch_loss)
-    
         # Validation
         if (epoch + 1) % 5 == 0:
             batch_size = 1
@@ -128,7 +131,7 @@ def train(train_data, valid_data):
             print 'Validation loss after epoch %d = %f' % ((epoch + 1), epoch_loss)
             if np.argmin(validation_loss_history) == len(validation_loss_history) - 1:
                 print 'Best model so far, Saving it to disk'
-                np.save('models/best.npy', beta)
+                np.save(final_model, beta)
             if np.argmin(validation_loss_history) < len(validation_loss_history) - patience:
                 print 'Stopping training'
 
@@ -160,17 +163,39 @@ def predict(test_data, model):
         Y_hat.append(Y_hat_i)
     return Y_hat
 
-def plot(Y, Y_hat):
+def plot(Y, Y_hat, plotname, epochs):
     plt.scatter(Y, Y_hat)
+    Y_min, Y_max = np.min(Y), np.max(Y)
+    plt.plot([Y_min, Y_max], [Y_min, Y_max], color = 'black')
+    plt.xlabel('Y')
+    plt.ylabel('Y_hat')
+    plt.title('Y_hat vs Y @ %d epochs' % (epochs))
+    plt.savefig(plotname)
 
 if __name__ == '__main__':
-    X, Y = loadData('./data/20_3.txt')
+    if len(sys.argv) < 2:
+        print 'usage : python regression.py <data> <epochs> <final_model> <finetune> <initial_model> <plot>'
+        print '<data> : input data'
+        print '<epochs> : number of epochs to train the model'
+        print '<final_model> : path to save the final model after training'
+        print '<finetune> : Y or N'
+        print '<intial_model> : initial model if finetuning'
+        exit()
+
+    #### Argparsing ####
+    _, data, epochs, final_model, finetune, initial_model, plotname = sys.argv
+    finetune = False
+    if finetune == 'Y':
+        finetune = True
+    epochs = int(epochs)
+    ####################
+    X, Y = loadData(data)
     features = getFeatures(X, 1)
     data = [features, Y]
     train_data, valid_data, test_data = partitionData(data)
-    train(train_data, valid_data) 
-    test(test_data, 'models/best.npy')
+    train(train_data, valid_data, epochs, final_model, finetune = finetune, initial_model = initial_model) 
+    test(test_data, final_model)
     Y = test_data[1]
-    Y_hat = predict(test_data, 'models/best.npy')
-    plot(Y, Y_hat)
+    Y_hat = predict(test_data, final_model)
+    plot(Y, Y_hat, plotname, epochs)
 
