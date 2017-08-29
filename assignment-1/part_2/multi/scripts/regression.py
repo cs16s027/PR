@@ -1,6 +1,6 @@
 import itertools
 import numpy as np
-
+from matplotlib import pyplot as plt
 
 def loadData(datafile):
     lines = [line.strip().split(' ') for line in open(datafile, 'r').readlines()]
@@ -68,30 +68,109 @@ def partitionData(data):
 def train(train_data, valid_data):
     # Data
     train_X, train_Y = train_data
+    train_size = train_X.shape[0]
+    print '\n### Data ###'
+    print 'Training on %d data-points' % train_size
     valid_X, valid_Y = valid_data
+    valid_size = valid_X.shape[0]
+    print 'Validating on %d data-points' % valid_size
 
     # Variable initialization
     params_dim = train_X.shape[1]
-    beta = np.random.randn((params_dim))
+    print '\n### Variable Initialization ###'
+    print 'Number of parameters = %d' % params_dim
+    beta = np.zeros(params_dim)
+    print 'Zero initialization'
 
     # Hyperparameters
-    epochs = 20
-    batch_size = 32
+    epochs = 100
+    batch_size = 16
     lr = 0.001
+    patience = 5
+    print '\n### Hyperparameters ###'
+    print 'Training for %d epochs with a batch size of %d and learning rate of %f' % (epochs, batch_size, lr)
+    print 'Early stopping has been enabled with patience set to %d' % patience
     
     # Training
+    print '\n### Training and Validation ###'
+    validation_loss_history = []
     for epoch in range(epochs):
-        batches = float(epochs) / batch_size
-        for batch in batches:
-            indices = [batch * batch_size : (batch + 1) * batch_size]
-            #X = train_X[batch * batch_size : (batch + 1) * batch_size]
-            #Y = train_Y[batch * batch_size : (batch + 1) * batch_size]
-            beta += lr * np.sum((Y[indices] - np.dot(X[i, :], beta)) * X[indices, :])
-        
+        epoch_loss = 0.0
+        batches = int(float(train_size) / batch_size)
+        for batch in range(batches):
+            indices = np.arange(batch * batch_size, (batch + 1) * batch_size, 1)
+            batch_loss = 0.0
+            batch_loss_grad = np.zeros_like(beta)
+            for i in indices:
+                X_i, Y_i = train_X[i, :], train_Y[i]
+                Y_hat_i = np.dot(X_i, beta)
+                L_i = Y_i - Y_hat_i
+                batch_loss += 0.5 * L_i * L_i
+                batch_loss_grad += L_i * X_i 
+            beta += lr * batch_loss_grad
+        epoch_loss += batch_loss / train_size 
+        print 'Training loss after epoch %d = %f' % ((epoch + 1), epoch_loss)
+    
+        # Validation
+        if (epoch + 1) % 5 == 0:
+            batch_size = 1
+            epoch_loss = 0.0
+            batches = int(float(valid_size) / batch_size)
+            for batch in range(batches):
+                indices = np.arange(batch * batch_size, (batch + 1) * batch_size, 1)
+                for i in indices:
+                    X_i, Y_i = valid_X[i, :], valid_Y[i]
+                    Y_hat_i = np.dot(X_i, beta)
+                    L_i = Y_i - Y_hat_i
+                    epoch_loss += 0.5 * L_i * L_i
+            epoch_loss /= valid_size
+            validation_loss_history.append(epoch_loss)
+            print 'Validation loss after epoch %d = %f' % ((epoch + 1), epoch_loss)
+            if np.argmin(validation_loss_history) == len(validation_loss_history) - 1:
+                print 'Best model so far, Saving it to disk'
+                np.save('models/best.npy', beta)
+            if np.argmin(validation_loss_history) < len(validation_loss_history) - patience:
+                print 'Stopping training'
+
+def test(test_data, model):
+    model = np.load(model)
+    test_X, test_Y = test_data
+    test_size = test_X.shape[0]
+    epoch_loss = 0.0
+    batch_size = 1
+    batches = int(float(test_size) / batch_size)
+    for batch in range(batches):
+        indices = np.arange(batch * batch_size, (batch + 1) * batch_size, 1)
+        for i in indices:
+            X_i, Y_i = test_X[i, :], test_Y[i]
+            Y_hat_i = np.dot(X_i, model)
+            L_i = Y_i - Y_hat_i
+            epoch_loss += 0.5 * L_i * L_i
+    epoch_loss /= test_size
+    print 'Test loss = %f' % epoch_loss
+
+def predict(test_data, model):
+    model = np.load(model)
+    test_X, test_Y = test_data
+    test_size = test_X.shape[0]
+    Y_hat = []
+    for i in range(test_size):
+        X_i, Y_i = test_X[i, :], test_Y[i]
+        Y_hat_i = np.dot(X_i, model)
+        Y_hat.append(Y_hat_i)
+    return Y_hat
+
+def plot(Y, Y_hat):
+    plt.scatter(Y, Y_hat)
 
 if __name__ == '__main__':
     X, Y = loadData('./data/20_3.txt')
-    features = getFeatures(X, 2)
+    features = getFeatures(X, 1)
     data = [features, Y]
     train_data, valid_data, test_data = partitionData(data)
-    
+    train(train_data, valid_data) 
+    test(test_data, 'models/best.npy')
+    Y = test_data[1]
+    Y_hat = predict(test_data, 'models/best.npy')
+    plot(Y, Y_hat)
+
