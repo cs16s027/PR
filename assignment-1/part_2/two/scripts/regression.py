@@ -112,9 +112,10 @@ def train(train_data, valid_data, epochs, final_model, finetune = False, initial
     print '\n### Hyperparameters ###'
     print 'Training for %d epochs with a batch size of %d and learning rate of %f' % (epochs, batch_size, lr)
     print 'Early stopping has been enabled with patience set to %d' % patience
-    
+ 
     # Training
     print '\n### Training and Validation ###'
+    training_loss_history = []
     validation_loss_history = []
     for epoch in range(epochs):
         epoch_loss = 0.0
@@ -131,9 +132,10 @@ def train(train_data, valid_data, epochs, final_model, finetune = False, initial
                 batch_loss_grad += L_i * X_i 
             beta += lr * batch_loss_grad
         epoch_loss += batch_loss / train_size 
+        training_loss_history.append(epoch_loss)
         print 'Training loss after epoch %d = %f' % ((epoch + 1), epoch_loss)
         # Validation
-        if (epoch + 1) % 5 == 0:
+        if (epoch + 1) % 1 == 0:
             batch_size = 1
             epoch_loss = 0.0
             batches = int(float(valid_size) / batch_size)
@@ -152,6 +154,19 @@ def train(train_data, valid_data, epochs, final_model, finetune = False, initial
                 np.save(final_model, beta)
             if np.argmin(validation_loss_history) < len(validation_loss_history) - patience:
                 print 'Stopping training'
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_yscale('log')
+    plt.title('Loss vs Epoch')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    print len(training_loss_history)
+    #ax.plot(np.arange(1, epochs + 1, 1), validation_loss_history, color = 'blue')
+    ax.plot(np.arange(1, epochs + 1, 1), training_loss_history, color = 'red')
+    plt.savefig('plots/loss.png')
+    plt.clf()
+
 
 def test(test_data, model):
     model = np.load(model)
