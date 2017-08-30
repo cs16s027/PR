@@ -89,14 +89,14 @@ def norm(A):
 def writeImages(A, approxA, errorA, rank, error, random, path):
     row, col = approxA.shape
     pad = 10
-    image = np.zeros((row + 200, 3 * col + 2 * pad))
+    image = np.zeros((row + 500, 3 * col + 2 * pad))
     image[0 : row, 0 : col] = A
     image[0 : row , col + pad : 2 * col + pad] = approxA
     image[0 : row, 2 * col + 2 * pad : 3 * col + 2 * pad] = errorA 
     font = cv2.FONT_HERSHEY_SIMPLEX
-    cv2.putText(image, 'Orig', (100, col + 40), font, 1, (255,255,255), 2)
-    cv2.putText(image, 'Recon', (340, col + 40), font, 1, (255,255,255), 2)
-    cv2.putText(image, 'Error', (620, col + 40), font, 1, (255,255,255), 2)
+    cv2.putText(image, 'Orig', (800, col + 40), font, 1, (255,255,255), 2)
+    cv2.putText(image, 'Recon', (1600, col + 40), font, 1, (255,255,255), 2)
+    cv2.putText(image, 'Error', (2400, col + 40), font, 1, (255,255,255), 2)
     cv2.putText(image, '# Singular-values = %d' % rank, (220, col + 80), font, 1, (255, 255, 255), 2)
     cv2.putText(image, 'Rel Error = %s' % str(error)[:4], (250, col + 130), font, 1, (255, 255, 255), 2)
     cv2.putText(image, 'Random = %s' % random, (250, col + 170), font, 1, (255, 255, 255), 2)   
@@ -132,13 +132,14 @@ def plotErrorDecay(ranks, errors, errorplot):
 if __name__ == '__main__':
 
     if len(sys.argv) < 3:
-        print 'usage : python scripts/basiSVD.py <input-image> <rank> <output-image> <random>'
+        print 'usage : python scripts/basiEVD.py <input-image> <singularplot> <errorplot> <random>'
         print '<input-image> : path to input image'
-        print '<rank> : order of approximation'
-        print '<output-image> : path to output image'
+        print '<singularplot> : path to save plot of singularvalues'
+        print '<errorplot> : path to save plot of errors'
         print '<random> : Y or N, if Y it will take random singularvalues'
         exit()
-    _, input_image, rank, output_image, random = sys.argv
+    _, input_image, singularplot, errorplot, random = sys.argv
+    random = True if random == 'Y' else False
 
     # Read image as matrix A; normalize it
     A = cv2.imread(input_image, 0) / 255.0
@@ -151,22 +152,21 @@ if __name__ == '__main__':
     print 'The matrix A is of shape', A.shape
     # Do Singular Value Decomposition of A
     U, sings, Q = doSVD(A)
-    # Order of approximation
-    rank = np.int(rank)
-    # Random N singularvalues
-    random = True if random == 'Y' else False
-    # Construct the approximate matrix with given rank
-    approxA = approximate(U, sings, Q, rank, random)
-    # Compute the error matrix
-    errorA = A - approxA
-    # Compute the relative error in the approximation
-    error = norm(errorA) / norm(A)
-    print 'Relative error = %f' % error
-    # Reverse transpose
-    if transpose_flag == True:
-        A = A.T
-        approxA = approxA.T
-        errorA = errorA.T
-    # Write the reconstructed images to disk; re-scale images before writing
-    writeImages(A * 255.0, approxA * 255.0, errorA * 255.0, rank, error, random, output_image)
+    # Plot the singularvalues of A
+    plotSingularval(sings, singularplot)
+    # Ranks to reconstruct
+    ranks = np.arange(5, sings.shape[0], int(0.05 * sings.shape[0]))
+    print len(ranks)
+    errors = []
+    for index, rank in enumerate(ranks):
+        print index
+        # Construct the approximate matrix with given rank
+        approxA = approximate(U, sings, Q, rank, random)
+        # Compute the error matrix
+        errorA = A - approxA
+        # Compute the relative error in the approximation
+        error = norm(errorA) / norm(A)
+        # Populate errors list
+        errors.append(error)
+    plotErrorDecay(ranks, errors, errorplot) 
     

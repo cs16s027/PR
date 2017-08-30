@@ -102,18 +102,21 @@ def plotErrorDecay(ranks, errors, errorplot):
 if __name__ == '__main__':
 
     if len(sys.argv) < 3:
-        print 'usage : python scripts/plotEVD.py <input-image> <errorplot> <random>'
+        print 'usage : python scripts/plotEVD.py <input-image> <eigenplot> <errorplot> <random>'
         print '<input-image> : path to input image'
+        print '<eigenplot> : path to eigenplot'
         print '<errorplot> : path to save plot of errors'
         print '<random> : Y or N, if Y it will take random eigenvalues'
         exit()
-    _, input_image, errorplot, random = sys.argv
+    _, input_image, eigenplot, errorplot, random = sys.argv
 
     # Read image as matrix A; normalize it
     A = cv2.imread(input_image, 0)
     print 'The image is of shape', A.shape
     # Do Eigenvalue Decomposition of A
     Q, eig, invQ = doEVD(A)
+    # Plot the eigenvalues of A
+    plotEigval(eig, eigenplot)
     # Random N eigenvalues
     random = True if random == 'Y' else False
     # Ranks to plot 
