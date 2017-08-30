@@ -26,7 +26,7 @@ def preprocessData(X):
     X_mean = np.mean(X, axis = 0)
     X = X - X_mean
     X_square = X * X
-    var = np.sum(X_square, axis = 0)
+    var = np.sum(X_square, axis = 0) / (X.shape[0] - 1)
     sig = np.sqrt(var)
     X = X / sig
     return X
@@ -82,7 +82,7 @@ def partitionData(data):
     return data
 
 # Stochastic gradient descent
-def train(train_data, valid_data, epochs, final_model, finetune = False, initial_model = False):
+def train(train_data, valid_data, epochs, final_model, ridge, finetune = False, initial_model = False):
     # Data
     train_X, train_Y = train_data
     train_size = train_X.shape[0]
@@ -107,7 +107,7 @@ def train(train_data, valid_data, epochs, final_model, finetune = False, initial
 
     # Hyperparameters
     batch_size = 16
-    lr = 10.0
+    lr = 0.001
     patience = 5
     print '\n### Hyperparameters ###'
     print 'Training for %d epochs with a batch size of %d and learning rate of %f' % (epochs, batch_size, lr)
@@ -118,7 +118,6 @@ def train(train_data, valid_data, epochs, final_model, finetune = False, initial
     training_loss_history = []
     validation_loss_history = []
     for epoch in range(epochs):
-        train_loss = 0.0
         batches = int(np.ceil(float(train_size) / batch_size))
         for batch in range(batches):
             low_index, high_index = batch * batch_size, (batch + 1) * batch_size
@@ -131,29 +130,34 @@ def train(train_data, valid_data, epochs, final_model, finetune = False, initial
                 X_i, Y_i = train_X[i, :], train_Y[i]
                 Y_hat_i = np.dot(X_i, beta)
                 L_i = Y_i - Y_hat_i
-                batch_loss += 0.5 * L_i * L_i
                 batch_loss_grad += L_i * X_i 
+            batch_loss_grad -= ridge * np.append(0, beta[1 : ])
             beta += lr * batch_loss_grad
-            train_loss += batch_loss
-        train_loss /= train_size
-        training_loss_history.append(train_loss)
-        print 'Training loss after epoch %d = %f' % ((epoch + 1), train_loss)
-        # Validation
+        # Training-Validation-Loss Calculation
         if (epoch + 1) % 1 == 0:
-            valid_loss = 0.0
-            for i in range(valid_size):
-                X_i, Y_i = valid_X[i, :], valid_Y[i]
-                Y_hat_i = np.dot(X_i, beta)
-                L_i = Y_i - Y_hat_i
-                valid_loss += 0.5 * L_i * L_i
-            valid_loss /= valid_size
-            validation_loss_history.append(valid_loss)
-            print 'Validation loss after epoch %d = %f' % ((epoch + 1), valid_loss)
+            train_loss, valid_loss = 0.0, 0.0
+            sizes = [train_size, valid_size]
+            losses = [train_loss, valid_loss]
+            histories = [training_loss_history, validation_loss_history]
+            data = [(train_X, train_Y), (valid_X, valid_Y)]
+            loss_dict = {0 : 'Training', 1 : 'Validation'}
+            for mode in [0, 1]:
+                X, Y = data[mode]
+                for i in range(sizes[mode]):
+                    X_i, Y_i = X[i, :], Y[i]
+                    Y_hat_i = np.dot(X_i, beta)
+                    L_i = Y_i - Y_hat_i
+                    losses[mode] += 0.5 * L_i * L_i 
+                losses[mode] /= sizes[mode]
+                losses[mode] += 0.5 * ridge * np.dot(beta[1 : ], beta[1 : ])
+                histories[mode].append(losses[mode])
+                print '%s loss after epoch %d = %f' % (loss_dict[mode], (epoch + 1), losses[mode])
             if np.argmin(validation_loss_history) == len(validation_loss_history) - 1:
                 print 'Best model so far, Saving it to disk'
                 np.save(final_model, beta)
             if np.argmin(validation_loss_history) < len(validation_loss_history) - patience:
                 print 'Stopping training'
+                #break
 
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -168,22 +172,19 @@ def train(train_data, valid_data, epochs, final_model, finetune = False, initial
     plt.clf()
 
 
-def test(test_data, model):
+def test(test_data, model, ridge):
     model = np.load(model)
     test_X, test_Y = test_data
     test_size = test_X.shape[0]
-    epoch_loss = 0.0
-    batch_size = 1
-    batches = int(float(test_size) / batch_size)
-    for batch in range(batches):
-        indices = np.arange(batch * batch_size, (batch + 1) * batch_size, 1)
-        for i in indices:
-            X_i, Y_i = test_X[i, :], test_Y[i]
-            Y_hat_i = np.dot(X_i, model)
-            L_i = Y_i - Y_hat_i
-            epoch_loss += 0.5 * L_i * L_i
-    epoch_loss /= test_size
-    print 'Test loss = %f' % epoch_loss
+    test_loss = 0.0
+    for i in range(test_size):
+        X_i, Y_i = test_X[i, :], test_Y[i]
+        Y_hat_i = np.dot(X_i, model)
+        L_i = Y_i - Y_hat_i
+        test_loss += 0.5 * L_i * L_i
+    test_loss /= test_size
+    test_loss += 0.5 * ridge * np.dot(model[1 : ], model[1 : ])
+    print 'Test loss = %f' % test_loss
 
 def predict(test_data, model):
     model = np.load(model)
@@ -208,21 +209,24 @@ def plot(Y, Y_hat, plotname, epochs):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print 'usage : python regression.py <data> <order> <epochs> <final_model> <finetune> <initial_model> <plot>'
+        print 'usage : python regression.py <data> <ridge> <order> <epochs> <final_model> <finetune> <initial_model> <plot>'
         print '<data> : input data'
+        print '<ridge> : parameter for ridge term'
         print '<order> : order of the polynomail to fit'
         print '<epochs> : number of epochs to train the model'
         print '<final_model> : path to save the final model after training'
         print '<finetune> : Y or N'
         print '<intial_model> : initial model if finetuning'
+        print '<plot> : plot of Y_hat vs Y'
         exit()
 
     #### Argparsing ####
-    _, data, order, epochs, final_model, finetune, initial_model, plotname = sys.argv
+    _, data, ridge, order, epochs, final_model, finetune, initial_model, plotname = sys.argv
     finetune = False
     if finetune == 'Y':
         finetune = True
     order = int(order)
+    ridge = float(ridge)
     epochs = int(epochs)
     ####################
     X, Y = loadData(data)
@@ -231,8 +235,8 @@ if __name__ == '__main__':
     features = getFeatures(X, order)
     data = [features, Y]
     train_data, valid_data, test_data = partitionData(data)
-    train(train_data, valid_data, epochs, final_model, finetune = finetune, initial_model = initial_model) 
-    test(test_data, final_model)
+    train(train_data, valid_data, epochs, final_model, ridge, finetune = finetune, initial_model = initial_model)
+    test(test_data, final_model, ridge)
     Y = test_data[1]
     Y_hat = predict(test_data, final_model)
     plot(Y, Y_hat, plotname, epochs)

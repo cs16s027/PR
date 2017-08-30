@@ -66,7 +66,7 @@ def partitionData(data):
     return data
 
 # Stochastic gradient descent
-def train(train_data, valid_data, epochs, final_model, ridge = False, finetune = False, initial_model = False):
+def train(train_data, valid_data, epochs, final_model, ridge, finetune = False, initial_model = False):
     # Data
     train_X, train_Y = train_data
     train_size = train_X.shape[0]
@@ -158,15 +158,11 @@ def test(test_data, model, ridge):
     test_X, test_Y = test_data
     test_size = test_X.shape[0]
     test_loss = 0.0
-    batch_size = 1
-    batches = int(float(test_size) / batch_size)
-    for batch in range(batches):
-        indices = np.arange(batch * batch_size, (batch + 1) * batch_size, 1)
-        for i in indices:
-            X_i, Y_i = test_X[i, :], test_Y[i]
-            Y_hat_i = np.dot(X_i, model)
-            L_i = Y_i - Y_hat_i
-            test_loss += 0.5 * L_i * L_i 
+    for i in range(test_size):
+        X_i, Y_i = test_X[i, :], test_Y[i]
+        Y_hat_i = np.dot(X_i, model)
+        L_i = Y_i - Y_hat_i
+        test_loss += 0.5 * L_i * L_i 
     test_loss /= test_size
     test_loss += 0.5 * ridge * np.dot(model[1 : ], model[1 : ])
     print 'Test loss = %f' % test_loss
@@ -215,7 +211,7 @@ if __name__ == '__main__':
     features = getFeatures(X, 1)
     data = [features, Y]
     train_data, valid_data, test_data = partitionData(data)
-    train(train_data, valid_data, epochs, final_model, ridge = ridge, finetune = finetune, initial_model = initial_model) 
+    train(train_data, valid_data, epochs, final_model, ridge, finetune = finetune, initial_model = initial_model) 
     test(test_data, final_model, ridge)
     Y = test_data[1]
     Y_hat = predict(test_data, final_model)
