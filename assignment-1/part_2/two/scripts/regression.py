@@ -118,10 +118,13 @@ def train(train_data, valid_data, epochs, final_model, finetune = False, initial
     training_loss_history = []
     validation_loss_history = []
     for epoch in range(epochs):
-        epoch_loss = 0.0
-        batches = int(float(train_size) / batch_size)
+        train_loss = 0.0
+        batches = int(np.ceil(float(train_size) / batch_size))
         for batch in range(batches):
-            indices = np.arange(batch * batch_size, (batch + 1) * batch_size, 1)
+            low_index, high_index = batch * batch_size, (batch + 1) * batch_size
+            if high_index >= train_size:
+                high_index = train_size
+            indices = np.arange(low_index, high_index, 1)
             batch_loss = 0.0
             batch_loss_grad = np.zeros_like(beta)
             for i in indices:
@@ -131,24 +134,21 @@ def train(train_data, valid_data, epochs, final_model, finetune = False, initial
                 batch_loss += 0.5 * L_i * L_i
                 batch_loss_grad += L_i * X_i 
             beta += lr * batch_loss_grad
-        epoch_loss += batch_loss / train_size 
-        training_loss_history.append(epoch_loss)
-        print 'Training loss after epoch %d = %f' % ((epoch + 1), epoch_loss)
+            train_loss += batch_loss
+        train_loss /= train_size
+        training_loss_history.append(train_loss)
+        print 'Training loss after epoch %d = %f' % ((epoch + 1), train_loss)
         # Validation
         if (epoch + 1) % 1 == 0:
-            batch_size = 1
-            epoch_loss = 0.0
-            batches = int(float(valid_size) / batch_size)
-            for batch in range(batches):
-                indices = np.arange(batch * batch_size, (batch + 1) * batch_size, 1)
-                for i in indices:
-                    X_i, Y_i = valid_X[i, :], valid_Y[i]
-                    Y_hat_i = np.dot(X_i, beta)
-                    L_i = Y_i - Y_hat_i
-                    epoch_loss += 0.5 * L_i * L_i
-            epoch_loss /= valid_size
-            validation_loss_history.append(epoch_loss)
-            print 'Validation loss after epoch %d = %f' % ((epoch + 1), epoch_loss)
+            valid_loss = 0.0
+            for i in range(valid_size):
+                X_i, Y_i = valid_X[i, :], valid_Y[i]
+                Y_hat_i = np.dot(X_i, beta)
+                L_i = Y_i - Y_hat_i
+                valid_loss += 0.5 * L_i * L_i
+            valid_loss /= valid_size
+            validation_loss_history.append(valid_loss)
+            print 'Validation loss after epoch %d = %f' % ((epoch + 1), valid_loss)
             if np.argmin(validation_loss_history) == len(validation_loss_history) - 1:
                 print 'Best model so far, Saving it to disk'
                 np.save(final_model, beta)
@@ -161,9 +161,9 @@ def train(train_data, valid_data, epochs, final_model, finetune = False, initial
     plt.title('Loss vs Epoch')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
-    print len(training_loss_history)
-    #ax.plot(np.arange(1, epochs + 1, 1), validation_loss_history, color = 'blue')
-    ax.plot(np.arange(1, epochs + 1, 1), training_loss_history, color = 'red')
+    ax.plot(np.arange(1, epochs + 1, 1), validation_loss_history, color = 'blue', label = 'Valid')
+    ax.plot(np.arange(1, epochs + 1, 1), training_loss_history, color = 'red', label = 'Train')
+    plt.legend()
     plt.savefig('plots/loss.png')
     plt.clf()
 
