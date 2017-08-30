@@ -31,7 +31,7 @@ def approximate(Q, eig, invQ, n, random = False):
 
     eig_count = eig.shape[0]
     indices = range(eig_count)
-    #np.random.seed(1)
+    np.random.seed(1)
     if random == True:
         np.random.shuffle(indices)
 
@@ -102,33 +102,33 @@ def plotErrorDecay(ranks, errors, errorplot):
 if __name__ == '__main__':
 
     if len(sys.argv) < 3:
-        print 'usage : python scripts/basiEVD.py <input-image> <rank> <output-image> <eigenplot> <random>'
+        print 'usage : python scripts/plotEVD.py <input-image> <errorplot> <random>'
         print '<input-image> : path to input image'
-        print '<rank> : order of approximation'
-        print '<output-image> : path to output image'
-        print '<eigenplot> : path to save plot of eigenvalues'
+        print '<errorplot> : path to save plot of errors'
         print '<random> : Y or N, if Y it will take random eigenvalues'
         exit()
-    _, input_image, rank, output_image, eigenplot, random = sys.argv
+    _, input_image, errorplot, random = sys.argv
 
     # Read image as matrix A; normalize it
-    A = cv2.imread(input_image, 0) / 255.0
+    A = cv2.imread(input_image, 0)
     print 'The image is of shape', A.shape
     # Do Eigenvalue Decomposition of A
     Q, eig, invQ = doEVD(A)
-    # Plot the eigenvalues of A
-    plotEigval(eig, eigenplot)
-    # Order of approximation
-    rank = np.int(rank)
     # Random N eigenvalues
     random = True if random == 'Y' else False
-    # Construct the approximate matrix with given rank
-    approxA = approximate(Q, eig, invQ, rank, random)
-    # Compute the error matrix
-    errorA = A - approxA
-    # Compute the relative error in the approximation
-    error = norm(errorA) / norm(A)
-    print 'Relative error = %f' % error
-    # Write the reconstructed images to disk; re-scale images before writing
-    writeImages(A * 255.0, approxA * 255.0, errorA * 255.0, rank, error, random, output_image)
-
+    # Ranks to plot 
+    ranks = np.arange(1, 256, 5)
+    # Container to hold the errors
+    errors = []
+    for rank in ranks:
+        # Construct the approximate matrix with given rank
+        approxA = approximate(Q, eig, invQ, rank, random)
+        # Compute the error matrix
+        errorA = A - approxA
+        # Compute the relative error in the approximation
+        error = norm(errorA) / norm(A)
+        # Populate errors list
+        errors.append(error)
+    # Plot the error vs eigenindex
+    plotErrorDecay(ranks, errors, errorplot) 
+    
