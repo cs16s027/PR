@@ -3,6 +3,7 @@
 import sys
 import cv2
 import numpy as np
+np.random.seed(1)
 from matplotlib import pyplot as plt
 
 # EigenValueDecomposition
@@ -64,7 +65,7 @@ def approximate(U, sings, Q, n, random = False):
     approxA = np.zeros((dimX, dimY))
 
     indices = range(dim)
-    #np.random.seed(1)
+    
     if random == True:
         np.random.shuffle(indices)
 
@@ -155,7 +156,7 @@ if __name__ == '__main__':
     # Plot the singularvalues of A
     plotSingularval(sings, singularplot)
     # Ranks to reconstruct
-    ranks = np.arange(5, sings.shape[0], int(0.05 * sings.shape[0]))
+    ranks = np.arange(5, sings.shape[0], int(0.01 * sings.shape[0]))
     print len(ranks)
     errors = []
     for index, rank in enumerate(ranks):

@@ -1,0 +1,13 @@
+\contentsline {section}{\numberline {1}Singular Value Decomposition}{2}{section.1}
+\contentsline {subsection}{\numberline {1.1}Grayscale}{2}{subsection.1.1}
+\contentsline {subsubsection}{\numberline {1.1.1}Square Matrix}{3}{subsubsection.1.1.1}
+\contentsline {subsubsection}{\numberline {1.1.2}Rectangular Matrix}{10}{subsubsection.1.1.2}
+\contentsline {subsection}{\numberline {1.2}Independent Channels}{15}{subsection.1.2}
+\contentsline {subsection}{\numberline {1.3}Concatenating Channels}{16}{subsection.1.3}
+\contentsline {section}{\numberline {2}Eigenvalue Decomposition}{17}{section.2}
+\contentsline {subsection}{\numberline {2.1}Grayscale}{17}{subsection.2.1}
+\contentsline {subsubsection}{\numberline {2.1.1}Square Image}{17}{subsubsection.2.1.1}
+\contentsline {section}{\numberline {3}Polynomial Regression}{17}{section.3}
+\contentsline {subsection}{\numberline {3.1}One-dimesnional data}{17}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Two-dimensional data}{17}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}Multi-dimensional data}{17}{subsection.3.3}
