@@ -30,7 +30,7 @@ def getFeatures(X, n):
     dim = X.shape[1]
     features = []
     for i, point_i in enumerate(X):
-        features_i = []
+        features_i = [1.0]
         for order in np.arange(1, n + 1, 1):
             terms = getTerms(dim, order)
             for term in terms:
