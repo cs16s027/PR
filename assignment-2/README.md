@@ -14,7 +14,7 @@
 
  2. Bayes with covariance matrix different for all classes
 
- 3. Naive Bayes with [](https://latex.codecogs.com/gif.latex?%5CSigma%20%3D%20%5Csigma%20%5E%202%20I)
+ 3. Naive Bayes with the covariance matrix propotional to the Identity for all classes
 
  4. Naive Bayes with the covariance matrix same for all classes
 
