@@ -7,7 +7,7 @@ from scipy.stats import multivariate_normal
 
 def plotPDF(mu, cov):
     # Generate the underlying x-y grid
-    x, y = np.mgrid[-5.0:5.0:100j, -5.0:5.0:100j]
+    x, y = np.mgrid[int(mu[0]) - 5 : int(mu[0]) + 5:100j, int(mu[1]) - 5 : int(mu[1]) + 5 : 500j]
     # Generate tuples (x, y) : X x Y
     xy = np.column_stack([x.flat, y.flat])
 
@@ -21,16 +21,14 @@ def plotPDF(mu, cov):
     contour_location = z_min - 2 * z_range
 
     # Plot the pdf and the contours
-    fig = plt.figure() 
-    ax = fig.add_subplot(111, projection = '3d')
+    fig = plt.figure(1)
+    ax = fig.gca(projection = '3d')
     ax.set_zlim3d(contour_location, z_max)
     #ax.plot_surface(x, y, z, rstride = 8, cstride = 8, alpha = 0.25)
     # Surface plot
     ax.plot_surface(x, y, z, rstride = 1, cstride = 1, cmap=cm.coolwarm, linewidth = 0, antialiased=False)
     # Contour plot 
-    conts = ax.contour(x, y, z, zdir = 'z', offset = contour_location, cmap = cm.coolwarm)
-    print conts
-
+    ax.contour(x, y, z, zdir = 'z', offset = contour_location, cmap = cm.coolwarm)
 
     # Plot the directions
     _, eigvec = np.linalg.eig(cov)
