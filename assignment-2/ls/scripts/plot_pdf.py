@@ -6,46 +6,34 @@ import numpy as np
 from scipy.stats import multivariate_normal
 
 def plotPDF(mus, covs, plot):
-    xmin = int(min([mus[label][0] for label in [0, 1, 2]]))
-    xmax = int(max([mus[label][0] for label in [0, 1, 2]]))
-    ymin = int(min([mus[label][1] for label in [0, 1, 2]]))
-    ymax = int(max([mus[label][1] for label in [0, 1, 2]]))
-    '''
-    # Generate the underlying x-y grid
-    x, y = np.mgrid[int(mu[0]) - 5 : int(mu[0]) + 5:100j, int(mu[1]) - 5 : int(mu[1]) + 5 : 500j]
-    # Generate tuples (x, y) : X x Y
-    xy = np.column_stack([x.flat, y.flat])
-    '''
-    # Generate the underlying x-y grid
-    x, y = np.mgrid[ymin - 7 : ymax + 7 : 100j, ymin - 7 : ymax + 7 : 100j]
-    # Generate tuples (x, y) : X x Y
-    xy = np.column_stack([x.flat, y.flat])
-    base = np.zeros_like(x)
-    # Base plot 
     fig = plt.figure(1)
     ax = fig.gca(projection = '3d')
-    ax.plot_surface(x, y, base, rstride = 1, cstride = 1, cmap=cm.coolwarm, linewidth = 0, antialiased=False)
 
+    # Compute the gaussian for each class
+    xs, ys, zs = [], [], []
     for label in [0, 1, 2]:
         mu, cov = mus[label], covs[label]
+        x, y = np.mgrid[mu[0] - 5 : mu[0] + 5 : 100j, mu[1] - 5 : mu[1] + 5 : 100j]
+        xy = np.column_stack([x.flat, y.flat])
         # Compute the gaussian on this grid with mean = mu, covariance = cov
         z = multivariate_normal.pdf(xy, mean = mu, cov = cov)
         # Reshape the points to fall in line with x,y 
         z = z.reshape(x.shape)
-        # Contour placement
-        z_min, z_max = np.min(z), np.max(z)
-        z_range = z_max - z_min
-        contour_location = z_min - 2 * z_range
+        # Populate Gaussians : zs
+        xs.append(x)
+        ys.append(y)
+        zs.append(z)
+    
+    zmin, zmax = np.min(np.array(zs)), np.max(np.array(zs))
+    contour_location = zmin - 2 * (zmax - zmin)
+    ax.set_zlim3d(contour_location, zmax)
 
-        # Plot the pdf and the contours
-        plt.figure(1)
-        ax.set_zlim3d(contour_location, z_max)
-        #ax.plot_surface(x, y, z, rstride = 8, cstride = 8, alpha = 0.25)
+    # Plot the pdf and the contours
+    for label in [0, 1, 2]:
         # Surface plot
-        ax.plot_surface(x, y, z, rstride = 1, cstride = 1, cmap=cm.coolwarm, linewidth = 0, antialiased=False)
-        #ax.plot_surface(x, y, z, rstride = 1, cstride = 1, color = 'blue', linewidth = 0, antialiased=False)
+        ax.plot_surface(xs[label], ys[label], zs[label], rstride = 1, cstride = 1, cmap=cm.coolwarm, linewidth = 0, antialiased=False, zorder = 1)
         # Contour plot 
-        ax.contour(x, y, z, zdir = 'z', offset = contour_location, cmap = cm.coolwarm)
+        ax.contour(xs[label], ys[label], zs[label], zdir = 'z', offset = contour_location, cmap = cm.coolwarm)
 
         # Plot the directions
         '''
@@ -60,6 +48,14 @@ def plotPDF(mus, covs, plot):
     plt.savefig(plot)
 
 if __name__ == '__main__':
-    plotPDF(np.array([1.0, 2.0]), np.array([[1, 0.6], [0.6, 1]]))
+    plotPDF([np.array([1.0, 2.0]),\
+             np.array([5.0, 7.0]),\
+             np.array([-1.0, 11.0])],\
+                
+            [np.array([[1, 0.6], [0.6, 1]]),\
+             np.array([[1.5, 0.3], [0.3, 1.5]]),\
+             np.array([[1.2, 0], [0, 1.2]])],\
+
+            'plots/pdf.jpg')
     plt.show()
 
