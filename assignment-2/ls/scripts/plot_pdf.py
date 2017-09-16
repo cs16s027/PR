@@ -3,7 +3,18 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.cm as cm
 
 import numpy as np
-from scipy.stats import multivariate_normal
+
+def multivariateNormalPDF(xy, mean, cov):
+    z = []
+    det_cov = np.linalg.det(cov)
+    factor = 1.0 / np.sqrt(np.power(2 * np.pi, 2) * np.linalg.det(cov))
+    for x, y in xy:
+        point = np.array([x, y])
+        exponent = -0.5 * np.dot(np.dot((point - mean).T, np.linalg.inv(cov)), (point - mean))
+        z.append(np.exp(exponent))
+    reshape_size = int(np.sqrt(xy.shape[0])), int(np.sqrt(xy.shape[0]))
+    z = np.array(z).reshape(reshape_size) * factor
+    return z
 
 def plotPDF(mus, covs, plot):
     # Initialize the matplotlib figure object
@@ -18,9 +29,7 @@ def plotPDF(mus, covs, plot):
         x, y = np.mgrid[mu[0] - 5 : mu[0] + 5 : 100j, mu[1] - 5 : mu[1] + 5 : 100j]
         xy = np.column_stack([x.flat, y.flat])
         # Compute the gaussian on this grid with mean = mu, covariance = cov
-        z = multivariate_normal.pdf(xy, mean = mu, cov = cov)
-        # Reshape the points to fall in line with x,y 
-        z = z.reshape(x.shape)
+        z = multivariateNormalPDF(xy, mu, cov)
         # Populate Gaussians : zs
         xs.append(x)
         ys.append(y)
