@@ -12,5 +12,5 @@ def solve(data, plot):
 
 if __name__ == '__main__':
     data = h5py.File('data/train.h5', 'r')
-    solve(data, 'plots/pdf.png')
+    solve(data, 'plots/pdf.jpg')
 
