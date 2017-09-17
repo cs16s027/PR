@@ -6,7 +6,7 @@ from helpers import multivariateNormalPDF
 
 import numpy as np
 
-def plotContours(mus, covs, plot, figure = 1):
+def plotContours(mus, covs, plot, title, figure = 1):
     print 'Plotting contours'
     # Initialize the matplotlib figure object
     fig = plt.figure(figure)
@@ -21,6 +21,7 @@ def plotContours(mus, covs, plot, figure = 1):
         xy = np.column_stack([x.flat, y.flat])
         # Compute the gaussian on this grid with mean = mu, covariance = cov
         z = multivariateNormalPDF(xy, mu, cov)
+        z = z.reshape(x.shape)
         # Populate Gaussians : zs
         xs.append(x)
         ys.append(y)
@@ -50,7 +51,7 @@ def plotContours(mus, covs, plot, figure = 1):
     ax.text(13, 6.5, 'Class-1')
 
     # Save the figure
-    plt.title('Constant density curves with directions')
+    plt.title(title)
     plt.savefig(plot)
 
 if __name__ == '__main__':
@@ -61,7 +62,7 @@ if __name__ == '__main__':
             [np.array([[1, 0.6], [0.6, 1]]),\
              np.array([[1.5, 0.3], [0.3, 1.5]]),\
              np.array([[1.2, 0], [0, 1.2]])],\
-
+            'Test plot',\
             'plots/contours.jpg')
     plt.show()
 

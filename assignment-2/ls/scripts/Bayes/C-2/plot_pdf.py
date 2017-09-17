@@ -6,7 +6,7 @@ from helpers import multivariateNormalPDF
 
 import numpy as np
 
-def plotPDF(mus, covs, plot, figure = 1):
+def plotPDF(mus, covs, plot, title, figure = 1):
     print 'Plotting PDFs'
     # Initialize the matplotlib figure object
     fig = plt.figure(figure)
@@ -21,6 +21,7 @@ def plotPDF(mus, covs, plot, figure = 1):
         xy = np.column_stack([x.flat, y.flat])
         # Compute the gaussian on this grid with mean = mu, covariance = cov
         z = multivariateNormalPDF(xy, mu, cov)
+        z = z.reshape(x.shape)
         # Populate Gaussians : zs
         xs.append(x)
         ys.append(y)
@@ -58,7 +59,7 @@ def plotPDF(mus, covs, plot, figure = 1):
     ax.text(12, 5, contour_location, 'Class-1', 'x')
 
     # Save the figure
-    plt.title('Class conditional densities')
+    plt.title(title)
     plt.savefig(plot)
 
 if __name__ == '__main__':
@@ -69,7 +70,7 @@ if __name__ == '__main__':
             [np.array([[1, 0.6], [0.6, 1]]),\
              np.array([[1.5, 0.3], [0.3, 1.5]]),\
              np.array([[1.2, 0], [0, 1.2]])],\
-
+             'Test plot',\
             'plots/pdf.jpg')
     plt.show()
 

@@ -2,7 +2,7 @@ import numpy as np
 import h5py
 from matplotlib import pyplot as plt
 
-def plotData(data, path, figure = 0):
+def plotData(data, path, title, figure = 0):
     print 'Plotting data'
     colors = {'0' : 'blue', '1' : 'green', '2' : 'red'}
     fig = plt.figure(figure)
@@ -22,11 +22,11 @@ def plotData(data, path, figure = 0):
     ax.text(6, 0, 'Class-0')
     ax.text(-6, 9.0, 'Class-2')
     ax.text(13, 6.5, 'Class-1')
-    plt.title('Plot of Training Data')
+    plt.title(title)
     plt.savefig(path)
 
 if __name__ == '__main__':
     data = h5py.File('data/train.h5', 'r')
     path = 'plots/training_data.jpg'
-    plotData(data, path, figure = 0)
+    plotData(data, path, 'Test plot', figure = 0)
 
