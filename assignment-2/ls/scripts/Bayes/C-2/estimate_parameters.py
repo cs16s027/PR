@@ -4,7 +4,6 @@ import h5py
 def estimateParams(data):
     means, covs = [], []
     for label in ['0', '1', '2']:
-        sigma = np.zeros((2, 2))
         points = data[label][:]
         mu = np.mean(points, axis = 0)
         cov = np.dot((points - mu).T, points - mu) / points.shape[0]
