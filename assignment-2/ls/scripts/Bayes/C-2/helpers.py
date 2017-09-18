@@ -32,20 +32,5 @@ def loadModel(path):
         params[index] = model[name][:]
     return params
 
-# Predict
-def predict(data, params, threshold):
-    mus, covs = params
-    conmat = np.zeros((3, 3))
-    for t_label in ['0', '1', '2']:
-        points = data[t_label][:]
-        zs = []
-        for p_label in [0, 1, 2]:
-            mean, cov = mus[p_label], cov[p_label]
-            zs.append(multivariateNormalPDF(points, mean, cov))
-       zs = np.array(zs)
-       np.argmax(zs)
-       
 
 
-    exit()
-    

@@ -4,7 +4,10 @@ from matplotlib import pyplot as plt
 
 def plotData(data, path, title, figure = 0):
     print 'Plotting data'
-    colors = {'0' : 'blue', '1' : 'green', '2' : 'red'}
+    if 'Test' in title:
+        colors = {'0' : 'black', '1' : 'black', '2' : 'black'}
+    else:
+        colors = {'0' : 'blue', '1' : 'green', '2' : 'red'}
     fig = plt.figure(figure)
     ax = fig.gca()
 

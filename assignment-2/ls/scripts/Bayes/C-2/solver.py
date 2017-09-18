@@ -6,7 +6,8 @@ from plot_data import plotData
 from plot_pdf import plotPDF
 from plot_contours import plotContours
 from plot_boundary import plotBoundaries
-from helpers import saveModel, loadModel, multivariateNormalPDF, predict
+from helpers import saveModel, loadModel, multivariateNormalPDF
+from postProcess import computeROC, plotROC
 
 # Train model 
 def train(data, data_plot, pdf_plot, contour_plot, boundary_plot):
@@ -24,11 +25,21 @@ def train(data, data_plot, pdf_plot, contour_plot, boundary_plot):
     # Return the trained values
     return np.array(mus), np.array(covs)
 
-def validate(data, params):
-    # Get the confusion matrix
-    predict(data, params, 0.5)
-    pass  
-       
+def validate(data, params, roc_plot):
+    print 'Validating model'
+    rates = computeROC(data, params)
+    plotROC(rates, roc_plot, 'ROC curve', figure = 4)
+
+def test(data, params, plot):
+    print 'Testing model'
+    # Plot the data
+    # Use the trained params
+    mus, covs = params
+    # Plot the contours alone in a separate plot
+    plotContours(mus, covs, plot, title = 'Constant-density curves with directions', figure = 5)
+    # Plot the decision boundaries
+    plotBoundaries(mus, covs, plot, title = 'Decision surfaces', figure = 5)
+    plotData(data, plot, title = 'Test data', figure = 5)
 
 if __name__ == '__main__':
     '''
@@ -45,6 +56,7 @@ if __name__ == '__main__':
     mus, covs = loadModel('models/Bayes/C-2/model.h5')
     # Validation
     data = h5py.File('data/valid.h5', 'r')
-    validate(data, [mus, covs])
+    validate(data, [mus, covs], 'plots/Bayes/C-2/valid/roc.jpg')
     # Testing
-
+    data = h5py.File('data/test.h5', 'r')
+    test(data, [mus, covs], 'plots/Bayes/C-2/test/plot.jpg') 
