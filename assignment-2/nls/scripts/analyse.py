@@ -1,5 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
+from scipy.stats import norm
 
 from helpers import multivariateNormalPDF
 
@@ -91,6 +92,25 @@ def plotROC(rates, plot, title, figure):
     ax.plot([0, 0], [-0.1, 1.1], linestyle = '--', linewidth = 2,  color = 'black')
     # Plot the ROC curve 
     ax.plot(rates[0], rates[1], linewidth = 1)
+    plt.savefig(plot)
+
+def plotDET(rates, plot, title, figure):
+    tpr, fpr = rates
+    fnr = [1 - t for t in tpr]
+    x = [norm.ppf(w) for w in fpr]
+    y = [norm.ppf(w) for w in fnr]
+    print x
+    print y
+    fig = plt.figure(figure)
+    ax = fig.gca()
+    # Label the graph
+    ax.set_title(title)
+    ax.set_xlabel('FPR')
+    ax.set_ylabel('FNR')
+    # Turn on grid, add x-axis and y-axis
+    ax.grid()
+    # Plot the ROC curve 
+    ax.plot(x, y, linewidth = 1)
     plt.savefig(plot)
 
 def printConfusionMatrix(data, params):

@@ -93,6 +93,28 @@ def plotROC(rates, plot, title, figure):
     ax.plot(rates[0], rates[1], linewidth = 1)
     plt.savefig(plot)
 
+def plotDET(rates, plot, title, figure):
+    tpr, fpr = rates
+    fnr = [1 - t for t in tpr]
+    fig = plt.figure(figure)
+    ax = fig.gca()
+    # Random classifier
+    ax.plot([0, 1], [0, 1], linestyle = '--', color = 'black')
+    # Bound the curve above
+    ax.plot([0, 1], [1, 1], linestyle = '--', color = 'black')
+    # Label the graph
+    ax.set_title(title)
+    ax.set_xlabel('FNR')
+    ax.set_ylabel('FPR')
+    # Set scales
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    # Turn on grid, add x-axis and y-axis
+    ax.grid()
+    # Plot the ROC curve 
+    ax.plot(fnr, fpr, linewidth = 1)
+    plt.savefig(plot)
+
 def printConfusionMatrix(data, params):
     predictions = predict(data, params)
     conmat = np.zeros((3, 3), dtype = np.int)

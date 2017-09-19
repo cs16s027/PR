@@ -7,7 +7,7 @@ from plot_pdf import plotPDF
 from plot_contours import plotContours
 from plot_boundary import plotBoundaries
 from helpers import saveModel, loadModel, multivariateNormalPDF
-from analyse import computeROC, plotROC, printConfusionMatrix
+from analyse import computeROC, plotROC, printConfusionMatrix, plotDET
 
 # Train model 
 def train(data, data_plot, pdf_plot, contour_plot, boundary_plot, choice):
@@ -25,12 +25,14 @@ def train(data, data_plot, pdf_plot, contour_plot, boundary_plot, choice):
     # Return the trained values
     return np.array(mus), np.array(covs)
 
-def validate(data, params, roc_plot):
+def validate(data, params, roc_plot, det_plot):
     print 'Validating model'
     # Get the ROC data-points
     rates = computeROC(data, params)
     # Plot the ROC curve
     plotROC(rates, roc_plot, 'ROC curve', figure = 4)
+    # Plot the DET curve
+    plotDET(rates, det_plot, 'DET curve', figure = 5)
     # Print confusion matrix
     printConfusionMatrix(data, params)
 
@@ -64,5 +66,5 @@ if __name__ == '__main__':
     mus, covs = loadModel('models/C-1/2/model.h5')
     # Validation
     data = h5py.File('data/valid.h5', 'r')
-    rates = validate(data, [mus, covs], 'plots/C-1/valid/2/roc.jpg')
+    rates = validate(data, [mus, covs], 'plots/C-1/valid/2/roc.jpg', 'plots/C-1/valid/2/det.jpg')
 
