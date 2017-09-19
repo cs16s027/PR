@@ -13,7 +13,7 @@ def plotBoundaries(mus, covs, plot, title, figure = 1):
     ax = fig.gca()
 
     # Compute the gaussian for each class
-    x, y = np.mgrid[-10 : 20 : 500j, -10 : 20 : 500j]
+    x, y = np.mgrid[0 : 50 : 500j, 0 : 50 : 500j]
     xy = np.column_stack([x.flat, y.flat])
     zs = []
     for label in [0, 1, 2]:
@@ -39,10 +39,11 @@ def plotBoundaries(mus, covs, plot, title, figure = 1):
     ax.set_xlabel('X axis')
     ax.set_ylabel('Y axis')
 
-    # Name the classes
-    ax.text(6, 0, 'Class-0')
-    ax.text(-6, 9.0, 'Class-2')
-    ax.text(13, 6.5, 'Class-1')
+    # Label the plot
+    red = plt.Line2D((0,1), (0,0), color='red', marker='o', linestyle='')
+    green = plt.Line2D((0,1), (0,0), color='green', marker='o', linestyle='')
+    blue = plt.Line2D((0,1), (0,0), color='blue', marker='o', linestyle='')
+    ax.legend([red, green, blue], ['0', '1', '2'])
 
     # Save the figure
     plt.title(title)

@@ -52,17 +52,17 @@ if __name__ == '__main__':
     '''
     data = h5py.File('data/train.h5', 'r')
     # Training
-    mus, covs = train(data, 'plots/Bayes/C-1/train/2/data.jpg',\
-                            'plots/Bayes/C-1/train/2/pdf.jpg',\
-                            'plots/Bayes/C-1/train/2/contours.jpg',\
-                            'plots/Bayes/C-1/train/2/boundaries.jpg',\
-                             0) 
+    mus, covs = train(data, 'plots/Bayes/C-1/train/0/data.jpg',\
+                            'plots/Bayes/C-1/train/0/pdf.jpg',\
+                            'plots/Bayes/C-1/train/0/contours.jpg',\
+                            'plots/Bayes/C-1/train/0/boundaries.jpg',\
+                             2) 
     # Save model
-    saveModel([mus, covs], 'models/Bayes/C-1/2/model.h5')
+    saveModel([mus, covs], 'models/Bayes/C-1/0/model.h5')
     '''
     # Load model
-    mus, covs = loadModel('models/Bayes/C-1/2/model.h5')
+    mus, covs = loadModel('models/Bayes/C-1/0/model.h5')
     # Validation
     data = h5py.File('data/valid.h5', 'r')
-    rates = validate(data, [mus, covs], 'plots/Bayes/C-1/valid/2/roc.jpg')
+    rates = validate(data, [mus, covs], 'plots/Bayes/C-1/valid/0/roc.jpg')
 

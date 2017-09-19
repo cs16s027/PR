@@ -45,12 +45,8 @@ def plotContours(mus, covs, plot, title, figure = 1):
     ax.set_xlabel('X axis')
     ax.set_ylabel('Y axis')
 
-    # Name the classes
-    ax.text(6, 0, 'Class-0')
-    ax.text(-6, 9.0, 'Class-2')
-    ax.text(13, 6.5, 'Class-1')
-
     # Save the figure
+    plt.legend()
     plt.title(title)
     plt.savefig(plot)
 

@@ -22,9 +22,7 @@ def plotData(data, path, title, figure = 0):
     ax.set_ylabel('Y axis')
 
     # Name the classes
-    ax.text(6, 0, 'Class-0')
-    ax.text(-6, 9.0, 'Class-2')
-    ax.text(13, 6.5, 'Class-1')
+    plt.legend()
     plt.title(title)
     plt.savefig(path)
 

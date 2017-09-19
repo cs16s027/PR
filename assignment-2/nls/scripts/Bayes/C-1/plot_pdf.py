@@ -39,24 +39,10 @@ def plotPDF(mus, covs, plot, title, figure = 1):
         # Contour plot 
         ax.contour(xs[label], ys[label], zs[label], zdir = 'z', offset = contour_location, cmap = cm.coolwarm)
 
-        # Plot the directions
-        mu, cov = mus[label], covs[label]
-        _, eigvec = np.linalg.eig(cov)
-        eig_extent = np.max(x)
-        direction_1 = mu + eig_extent * eigvec[:, 0]
-        direction_2 = mu + eig_extent * eigvec[:, 1]
-        plt.plot([mu[0], direction_1[0]], [mu[1], direction_1[1]], zs = contour_location, zdir = 'z', color = 'black')
-        plt.plot([mu[0], direction_2[0]], [mu[1], direction_2[1]], zs = contour_location, zdir = 'z', color = 'black')
-
     # Label the axes
     ax.set_xlabel('X axis')
     ax.set_ylabel('Y axis')
     ax.set_zlabel('Z axis')
-
-    # Name the classes
-    ax.text(7, 0, contour_location, 'Class-0', 'x')
-    ax.text(-6, 7.6, contour_location, 'Class-2', 'y')
-    ax.text(12, 5, contour_location, 'Class-1', 'x')
 
     # Save the figure
     plt.title(title)
