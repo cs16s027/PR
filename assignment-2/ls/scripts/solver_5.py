@@ -21,7 +21,7 @@ def train(data, data_plot, pdf_plot, contour_plot, boundary_plot):
     # Plot the contours alone in a separate plot
     plotContours(mus, covs, contour_plot, title = 'Constant-density curves with directions', figure = 2)
     # Plot the decision boundaries
-    plotBoundaries(mus, covs, boundary_plot, title = 'Decision surfaces', figure = 3)
+    plotBoundaries(mus, covs, boundary_plot, title = 'Decision surfaces', figure = 2)
     # Return the trained values
     return np.array(mus), np.array(covs)
 
@@ -50,15 +50,15 @@ def test(data, params, plot):
 if __name__ == '__main__':
     data = h5py.File('data/train.h5', 'r')
     # Training
-    mus, covs = train(data, 'plots/NaiveC-5/train/data.jpg',\
-                            'plots/NaiveC-5/train/pdf.jpg',\
-                            'plots/NaiveC-5/train/contours.jpg',\
-                            'plots/NaiveC-5/train/boundaries.jpg')
+    mus, covs = train(data, 'plots/C-5/train/data.jpg',\
+                            'plots/C-5/train/pdf.jpg',\
+                            'plots/C-5/train/contours.jpg',\
+                            'plots/C-5/train/boundaries.jpg')
     # Save model
-    saveModel([mus, covs], 'models/NaiveC-5/model.h5')
+    saveModel([mus, covs], 'models/C-5/model.h5')
     # Load model
-    mus, covs = loadModel('models/NaiveC-5/model.h5')
+    mus, covs = loadModel('models/C-5/model.h5')
     # Validation
     data = h5py.File('data/valid.h5', 'r')
-    rates = validate(data, [mus, covs], 'plots/NaiveC-5/valid/roc.jpg')
+    rates = validate(data, [mus, covs], 'plots/C-5/valid/roc.jpg')
 

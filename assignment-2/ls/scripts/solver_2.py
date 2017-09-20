@@ -21,7 +21,7 @@ def train(data, data_plot, pdf_plot, contour_plot, boundary_plot):
     # Plot the contours alone in a separate plot
     plotContours(mus, covs, contour_plot, title = 'Constant-density curves with directions', figure = 2)
     # Plot the decision boundaries
-    plotBoundaries(mus, covs, boundary_plot, title = 'Decision surfaces', figure = 3)
+    plotBoundaries(mus, covs, boundary_plot, title = 'Decision surfaces', figure = 2)
     # Return the trained values
     return np.array(mus), np.array(covs)
 
@@ -48,7 +48,6 @@ def test(data, params, plot):
     plotData(data, plot, title = 'Test data', figure = 5)
 
 if __name__ == '__main__':
-    '''
     data = h5py.File('data/train.h5', 'r')
     # Training
     mus, covs = train(data, 'plots/C-2/train/data.jpg',\
@@ -57,7 +56,6 @@ if __name__ == '__main__':
                             'plots/C-2/train/boundaries.jpg') 
     # Save model
     saveModel([mus, covs], 'models/C-2/model.h5')
-    '''
     # Load model
     mus, covs = loadModel('models/C-2/model.h5')
     # Validation

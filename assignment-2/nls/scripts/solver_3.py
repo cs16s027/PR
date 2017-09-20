@@ -21,7 +21,7 @@ def train(data, data_plot, pdf_plot, contour_plot, boundary_plot, choice):
     # Plot the contours alone in a separate plot
     plotContours(mus, covs, contour_plot, title = 'Constant-density curves with directions', figure = 2)
     # Plot the decision boundaries
-    plotBoundaries(mus, covs, boundary_plot, title = 'Decision surfaces', figure = 3)
+    plotBoundaries(mus, covs, boundary_plot, title = 'Decision surfaces', figure = 2)
     # Return the trained values
     return np.array(mus), np.array(covs)
 
