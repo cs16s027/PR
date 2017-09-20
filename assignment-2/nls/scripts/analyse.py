@@ -1,5 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
+import matplotlib.ticker as ticker
 from scipy.stats import norm
 
 from helpers import multivariateNormalPDF
@@ -35,7 +36,10 @@ def computeROC(data, params):
     predictions = predict(data, params)
 
     # ROC curve computation
-    thresholds = np.arange(0, 1.001, 0.001)
+    thresholds_left = [1.0 / 10**i for i in np.arange(16, 3, -1)]
+    thresholds_central = list(np.arange(0.001, 1.0, 0.001))
+    thresholds_right = [1 - l for l in thresholds_left[::-1]]
+    thresholds = [0] + thresholds_left + thresholds_central + thresholds_right + [1.0]
     tprs, fprs = [], []
 
     # Choose one threshold - one point on the ROC curve
@@ -94,22 +98,51 @@ def plotROC(rates, plot, title, figure):
     ax.plot(rates[0], rates[1], linewidth = 1)
     plt.savefig(plot)
 
+def getNormalDeviate(array):
+    vals = []
+    for i in range(len(array)):
+        val = norm.ppf(array[i])
+        if val > 2:
+            val = 2
+        elif val < -2:
+            val = -2
+        vals.append(val)
+    return vals
+
 def plotDET(rates, plot, title, figure):
-    tpr, fpr = rates
+
+    fpr, tpr = rates
     fnr = [1 - t for t in tpr]
-    x = [norm.ppf(w) for w in fpr]
-    y = [norm.ppf(w) for w in fnr]
-    print x
-    print y
+    x, y = [], []
+    x = getNormalDeviate(fpr)
+    y = getNormalDeviate(fnr)
     fig = plt.figure(figure)
     ax = fig.gca()
     # Label the graph
     ax.set_title(title)
-    ax.set_xlabel('FPR')
-    ax.set_ylabel('FNR')
+    ax.set_xlabel('FPR in %')
+    ax.set_ylabel('FNR in %')
+    # Set ticks
+    vals = np.arange(0.0, 110.0, 10.0)
+    ticks_name = [str(int(val)) for val in vals]
+    print ticks_name
+    ticks_pos = [norm.ppf(val / 100) for val in vals]
+    ticks_pos[0], ticks_pos[-1] = -2, 2
+    ax.xaxis.set_major_locator(ticker.FixedLocator((ticks_pos)))
+    ax.xaxis.set_major_formatter(ticker.FixedFormatter((ticks_name)))
+    ax.yaxis.set_major_locator(ticker.FixedLocator((ticks_pos)))
+    ax.yaxis.set_major_formatter(ticker.FixedFormatter((ticks_name)))
     # Turn on grid, add x-axis and y-axis
+    print ticks_pos
+    ax.set_xlim([-2.1, 2])
+    ax.set_ylim([-2.1, 2.1])
     ax.grid()
-    # Plot the ROC curve 
+    # Set x-axis and y-axis
+    ax.plot([-2.1, 2], [-2.0, -2.0], linestyle = '--', linewidth = 2, color = 'black')
+    ax.plot([-2.0, -2.0], [-2.1, 2.1], linestyle = '--', linewidth = 2,  color = 'black')
+    # Bound the curve above
+    ax.plot([-2.1, 2.0], [2.0, 2.0], linestyle = '--', color = 'black')
+    # Plot the DET curve 
     ax.plot(x, y, linewidth = 1)
     plt.savefig(plot)
 

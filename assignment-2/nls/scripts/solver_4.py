@@ -50,16 +50,16 @@ def test(data, params, plot):
 if __name__ == '__main__':
     data = h5py.File('data/train.h5', 'r')
     # Training
-    mus, covs = train(data, 'plots/C-4/train/2/data.jpg',\
-                            'plots/C-4/train/2/pdf.jpg',\
-                            'plots/C-4/train/2/contours.jpg',\
-                            'plots/C-4/train/2/boundaries.jpg',\
-                             2)   
+    mus, covs = train(data, 'plots/C-4/train/1/data.jpg',\
+                            'plots/C-4/train/1/pdf.jpg',\
+                            'plots/C-4/train/1/contours.jpg',\
+                            'plots/C-4/train/1/boundaries.jpg',\
+                             1)   
     # Save model
-    saveModel([mus, covs], 'models/C-4/2/model.h5')
+    saveModel([mus, covs], 'models/C-4/1/model.h5')
     # Load model
-    mus, covs = loadModel('models/C-4/2/model.h5')
+    mus, covs = loadModel('models/C-4/1/model.h5')
     # Validation
     data = h5py.File('data/valid.h5', 'r')
-    rates = validate(data, [mus, covs], 'plots/C-4/valid/2/roc.jpg')
+    rates = validate(data, [mus, covs], 'plots/C-4/valid/1/roc.jpg')
 
