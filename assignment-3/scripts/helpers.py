@@ -9,9 +9,11 @@ def cluster(data, K):
 def loadData(data_path):
     data_ = h5py.File(data_path, 'r')
     data = {}
+    np.random.seed(0)
     for i in ['0', '1', '2']:
         points = data_[i][:]
         data[int(i)] = points.reshape((-1, 23))
+        np.random.shuffle(data[int(i)])
     return data
 
 # Compute the multivariate Gaussian distribution

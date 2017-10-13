@@ -25,22 +25,7 @@ def preprocessData(X):
     sig = np.sqrt(var)
     return X_mean, sig
 
-# Pool all data
-keys = class_dict.keys()
-all_data = []
-for key in keys:
-    all_data += class_dict[key]
-all_data = np.array(all_data, dtype = np.float32)
 
-# Get mean and sig for features
-mean, sig = preprocessData(all_data)
-
-# Normalize
-for key in keys:
-    for i in range(len(class_dict[key])):
-        class_dict[key][i] -= mean
-        class_dict[key][i] /= sig
-print 'Features normalization done'
 
 # Partition data 
 split = [0.7, 0.15, 0.15]
@@ -55,12 +40,30 @@ for class_name in class_dict.keys():
         lower = upper
 print 'Partitioned data'
 
+# Get mean and covariance
+keys = class_dict.keys()
+all_data = []
+for key in keys:
+    all_data += data[0][key]
+all_data = np.array(all_data, dtype = np.float32)
+
+# Get mean and sig for features
+mean, sig = preprocessData(all_data)
+
+# Normalize
+for j  in [0, 1, 2]:
+    for key in keys:
+        for i in range(len(data[j][key])):
+            data[j][key][i] -= mean
+            data[j][key][i] /= sig
+print 'Features normalization done'
+
 # Crete train, valid and test objects 
 data_file_map = ['train', 'valid', 'test']
 class_name_map = {'forest' : 0, 'street' : 1, 'highway' : 2}
 for stage in [0, 1, 2]:
     print '######################################'
-    dataset = h5py.File('data/%s.h5' % data_file_map[stage], 'w')
+    dataset = h5py.File('data/normal/%s.h5' % data_file_map[stage], 'w')
     for class_name, class_index in class_name_map.iteritems():
         points = np.array(data[stage][class_name], dtype = np.float32)
         print 'Writing %s to %s' % (class_name, data_file_map[stage])
