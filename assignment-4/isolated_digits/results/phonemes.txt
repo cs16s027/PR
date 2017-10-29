@@ -1,0 +1,5 @@
+one : oh, an
+five : f, ai, v
+zero : z, e, r, oh
+
+8 phonemes
