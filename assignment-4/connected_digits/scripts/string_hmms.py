@@ -19,16 +19,16 @@ for length in [2, 3, 4, 5]:
                     size = len(hmm_[1 : ])
                     hmm[e] = '\t'.join(hmm_)
                     hmms.append(hmm[e])
-                hmms.append('')
-                hmm_ = '0.000000\t' + '\t'.join(['0.000000'] * size)  #'\t'.join([str(1 / float(size)) for i in range(size)])
-                hmms.append(hmm_)
-                hmm_ = '1.000000\t' + '\t'.join(['0.000000'] * size)  #'\t'.join([str(1 / float(size)) for i in range(size)])
-                hmms.append(hmm_)
+                #hmms.append('')
+                #hmm_ = '0.000000\t' + '\t'.join(['0.000000'] * size)  #'\t'.join([str(1 / float(size)) for i in range(size)])
+                #hmms.append(hmm_)
+                #hmm_ = '1.000000\t' + '\t'.join(['0.000000'] * size)  #'\t'.join([str(1 / float(size)) for i in range(size)])
+                #hmms.append(hmm_)
                 hmms.append('')
             else:
                 hmms += hmm[-4 : ]
             states += int(hmm[0].split('states: ')[1])
-        states += index
+        #states += index
         symbols = int(hmm[1].split('symbols: ')[1])
         hmms = ['states: %s' % states, 'symbols: %s' % symbols] + hmms
         hmm_string_file = open('models/%s.hmm' % ''.join(string), 'w')
