@@ -13,7 +13,7 @@
 }
 
 \usepackage{graphicx}
-\graphicspath{{/home/karthik/Work/MS/courses/PR/assignment-4/}}
+\graphicspath{{/home/karthik/PR/assignment-4/}}
 \setlength{\parindent}{0pt}
 
 \title{Assignment-4 : Pattern Recognition}
@@ -131,11 +131,28 @@ Ground truth & Fixed model length = 3 & Unknown model length \\
 \end{tabular}
 \end{table}
 
+\newpage
 16-symbol, 10-state HMM models trained on each class are used for this task. The HMMs are then concatenated to form different continuous models. During concatenation the final state's self-transition probability is set to 0.5, and its next state transition probability is also set to 0.5. Sequence lengths upto 5 are considered. So there are a total of $ 3^1 + 3^2 + 3^3 + 3^4 + 3^5 = 363$ HMM models against which each datapoint is tested.
 
+\section{Handwriting}
+\textbf{Isolated} : Four types of features are used : coordinates, first derivatives, second derivatives, curvature. Different combination of these features are used to prepare different datasets.
+
+\begin{figure}[h!]
+\centering
+\title{The effect of curvature}
+\includegraphics[width=\textwidth]{handwriting/plots/hmm/roc_det_x,y,kt.jpg}
+\caption{HMM is labelled as $<\text{features}>\_<\text{symbols}>\_<\text{states}>$}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\title{The effect of features on performance}
+\includegraphics[width=\textwidth]{handwriting/plots/hmm/roc_det_compare.jpg}
+\caption{HMM is labelled as $<\text{features}>\_<\text{symbols}>\_<\text{states}>$}
+\end{figure}
+
 \newpage
-\section{Handwritten}
-
-
+\textbf{Observations} : The curvature is the most important feature. The first and second derivatives capture the speed and acceleration of the stroke. Though the dataset has been generated in an online fashion by sampling points as they are written, the prediction happens offline, after the entire stroke has been recorded. Hence the speed and acceleration do not have any impact on the classification. In fact the second derivatives make the performance worse.\\
+\textbf{Continuous} : 
 
 \end{document}

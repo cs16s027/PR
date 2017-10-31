@@ -108,10 +108,10 @@ def plotDETs(rates_list, plot, legend_list):
 
 if __name__ == '__main__':
     rates_list = []
-    #feat_indicator = ['x,y,dx,dy,d2x,d2y'] * 4
-    #models_list = ['16_10', '6_6', '6_10', '6_12']
-    feat_indicator = ['x,y', 'x,y,dx,dy', 'x,y,dx,dy,d2x,d2y', 'x,y,dx,dy,d2x,d2y,kt', 'kt', 'x,y,kt']
-    models_list = ['6_10', '6_6', '6_10', '16_10', '16_8', '16_12']
+    feat_indicator = ['x,y,kt'] * 5
+    models_list = ['16_10', '6_6', '6_10', '6_12', '16_12']
+    #feat_indicator = ['x,y', 'x,y,dx,dy', 'x,y,dx,dy,d2x,d2y', 'x,y,dx,dy,d2x,d2y,kt', 'kt', 'x,y,kt']
+    #models_list = ['6_10', '6_6', '6_10', '16_10', '16_8', '16_12']
     for m in range(len(models_list)):
         models_list[m] = feat_indicator[m] + '_' + models_list[m]
     for model in models_list:
@@ -119,9 +119,9 @@ if __name__ == '__main__':
         rates = computeROC('results/hmm/%s.txt' % model)
         # Add to rates_list
         rates_list.append(rates)
-    #plotROCs(rates_list, 'plots/hmm/roc_%s.jpg' % feat_indicator[-1], models_list)
-    #plotDETs(rates_list, 'plots/hmm/det_%s.jpg' % feat_indicator[-1], models_list)
+    plotROCs(rates_list, 'plots/hmm/roc_%s.jpg' % feat_indicator[-1], models_list)
+    plotDETs(rates_list, 'plots/hmm/det_%s.jpg' % feat_indicator[-1], models_list)
 
-    plotROCs(rates_list, 'plots/hmm/roc_compare.jpg', models_list)
-    plotDETs(rates_list, 'plots/hmm/det_compare.jpg', models_list)
+    #plotROCs(rates_list, 'plots/hmm/roc_compare.jpg', models_list)
+    #plotDETs(rates_list, 'plots/hmm/det_compare.jpg', models_list)
 
