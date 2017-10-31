@@ -1,5 +1,7 @@
 scribes/
-*report
+assignment-2/report
+assignment-1/report
+assignment-3/report
 *.swp
 *.pyc
 assignment-3/data

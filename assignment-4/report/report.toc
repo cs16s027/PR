@@ -1,0 +1,6 @@
+\contentsline {section}{\numberline {1}Isolated Digits}{2}{section.1}
+\contentsline {subsection}{\numberline {1.1}HMM}{2}{subsection.1.1}
+\contentsline {subsection}{\numberline {1.2}DTW}{3}{subsection.1.2}
+\contentsline {subsection}{\numberline {1.3}HMMs versus DTW}{3}{subsection.1.3}
+\contentsline {section}{\numberline {2}Connected Digits}{4}{section.2}
+\contentsline {section}{\numberline {3}Handwritten}{6}{section.3}

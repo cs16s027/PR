@@ -18,7 +18,7 @@ def codify(codes, seq, coded_seq_path):
 
 if __name__ == '__main__':
 
-    codes = np.load('data/proc/codes.npy')
+    codes = np.load('data/proc/codes_16.npy')
     for stage in ['test1', 'test2']:
         for test in os.listdir('data/raw/%s' % stage):
             mfcc_file = os.path.join('data/raw/%s' % stage , test)

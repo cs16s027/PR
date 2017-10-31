@@ -5,7 +5,8 @@ from scipy.stats import norm
 
 from analyse import computeROC
 
-def plotROCs(rates_list, plot):
+def plotROCs(rates_list, plot, models):
+    S = len(models)
     fig = plt.figure(0)
     ax = fig.gca()
     # Random classifier
@@ -26,7 +27,7 @@ def plotROCs(rates_list, plot):
     # Specify colors
     colors = ['red', 'green', 'blue', 'yellow', 'cyan', 'purple']
     # Plot the ROC curves
-    for model in range(6): 
+    for model in range(S): 
         rates = rates_list[model]
         ax.plot(rates[0], rates[1], linewidth = 1, color = colors[model])
     red = plt.Line2D((0,1), (0,0), color = 'red', marker='o', linestyle = '')
@@ -35,7 +36,8 @@ def plotROCs(rates_list, plot):
     yellow = plt.Line2D((0,1), (0,0), color = 'yellow', marker='o', linestyle = '')
     cyan = plt.Line2D((0,1), (0,0), color = 'cyan', marker='o', linestyle = '')
     purple = plt.Line2D((0,1), (0,0), color = 'purple', marker='o', linestyle = '')
-    ax.legend([red, green, blue, yellow, cyan, purple], ['1_10', '3_6', '4_16', '8_5', '16_8', '16_10'])
+    handles = [red, green, blue, yellow, cyan, purple]
+    ax.legend(handles[ : S], models)
     plt.savefig(plot)
 
 def getNormalDeviate(array):
@@ -49,8 +51,8 @@ def getNormalDeviate(array):
         vals.append(val)
     return vals
 
-def plotDETs(rates_list, plot):
-
+def plotDETs(rates_list, plot, models):
+    S = len(models)
     fig = plt.figure(1)
     ax = fig.gca()
     # Label the graph
@@ -77,7 +79,7 @@ def plotDETs(rates_list, plot):
     ax.plot([-2.1, 2.0], [2.0, 2.0], linestyle = '--', color = 'black')
     # Specify colors
     colors = ['red', 'green', 'blue', 'yellow', 'cyan', 'purple']
-    for model in range(6):
+    for model in range(S):
         fpr, tpr = rates_list[model]
         fnr = [1 - t for t in tpr]
         x, y = [], []
@@ -92,17 +94,19 @@ def plotDETs(rates_list, plot):
     yellow = plt.Line2D((0,1), (0,0), color = 'yellow', marker='o', linestyle = '')
     cyan = plt.Line2D((0,1), (0,0), color = 'cyan', marker='o', linestyle = '')
     purple = plt.Line2D((0,1), (0,0), color = 'purple', marker='o', linestyle = '')
-    ax.legend([red, green, blue, yellow, cyan, purple], ['1_10', '3_6', '4_16', '8_5', '16_8', '16_10'])
+    handles = [red, green, blue, yellow, cyan, purple]
+    ax.legend(handles[ : S], models)
     plt.savefig(plot)
 
 
 if __name__ == '__main__':
     rates_list = []
-    for model in ['1_10', '3_6', '4_16', '8_5', '16_8', '16_10']:
+    models = ['16_6', '16_1']
+    for model in models:
         # Get the ROC data-points
         rates = computeROC('results/hmm/%s.txt' % model)
         # Add to rates_list
         rates_list.append(rates)
-    plotROCs(rates_list, 'plots/hmm/roc.jpg')
-    plotDETs(rates_list, 'plots/hmm/det.jpg')
+    plotROCs(rates_list, 'plots/hmm/roc.jpg', models)
+    plotDETs(rates_list, 'plots/hmm/det.jpg', models)
 
