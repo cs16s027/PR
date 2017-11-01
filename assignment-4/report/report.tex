@@ -13,7 +13,7 @@
 }
 
 \usepackage{graphicx}
-\graphicspath{{/home/karthik/Work/MS/courses/PR/assignment-4/}}
+\graphicspath{{/home/karthik/PR/assignment-4/}}
 \setlength{\parindent}{0pt}
 
 \title{Assignment-4 : Pattern Recognition}
@@ -29,8 +29,8 @@
 \section{Isolated Digits}
 \subsection{HMM}
 \textbf{Data} : Classes given to us are ``1", ``5" and ``z".\\
-\textbf{Algorithm} : The data is divided into train (70\%) and test (30\%). The data is quantized using K-means with the number of symbols being equal to the number of means. A left-right HMM is trained on each class. Given a test datapoint, the likelihood of all three HMM-models on this datapoint are obtained. The predicted class is the one having the maximum likelihood.\\
-\textbf{Experiments} : The number of states and the number of symbols are the free variables. Each state-symbol combination corresponds to one experiment. The ROC-DET curves are plotted for all these models.
+\textbf{Algorithm} : The data is divided into train (70\%) and test (30\%). The data is quantized using K-means with the number of symbols being equal to the number of means. A left-right HMM is trained on each class. Given a test datapoint, the likelihoods of the three models on this data-point are obtained, with the predicted class being the one having the maximum likelihood.\\
+\textbf{Experiments} : The number of states and symbols are the free variables. Each state-symbol combination is one run.
 
 \begin{figure}[h!]
 \centering
@@ -54,7 +54,7 @@
 \end{figure}
 
 \newpage
-\textbf{Observations} : The design of the codebook has a much greater impact on the performance than that of the states. $16$ is observed to be the optimal codebook size. Even a single state HMM, 16-symbols HMM performs better than HMMs with a smaller codebook. 
+\textbf{Observations} : The design of the codebook has a much greater impact on the performance than the states. $16$ is observed to be the optimal codebook size. Even a single state HMM with 16-symbols performs better than HMMs with a smaller codebook. 
 
 \subsection{DTW}
 
@@ -67,13 +67,7 @@
 
 \textbf{Observations} : Near perfect classification is obtained using just a single neighbour. This suggests that DTW is a very good distance measure for time series data.
 
-\subsection{HMMs versus DTW}
-\begin{itemize}
-	\item No training or hyperparameter tuning required in DTW.
-	\item Unlike HMMs, DTW is memory and compute intensive during test time.
-	
-\end{itemize}
-
+\newpage
 \section{Connected Digits}
 
 \begin{table}[h!]
@@ -85,17 +79,17 @@
 Ground truth & Known model length & Unknown model length \\
 \hline
 11z & 11z & 11z\\
-15 & 15 & 1555\\
+15 & 15 & 155\\
 15z & 1zz & 1zz\\
 1z51 & 1z51 & 1z51z\\
-1z & 1z & 1z5z1\\
+1z & 1z & 1z5\\
 1zz & 1zz & 1zz\\
 1zzz1 & 1zzz1 & 1zzz1\\
-51 & 51 & 511z1\\
-51z & 51z & 51z1z\\
+51 & 51 & 511\\
+51z & 51z & 51z1\\
 51zz5 & 51zz1 & 51zz1\\
 55 & 55 & 55\\
-z1 & z1 & z1zzz\\
+z1 & z1 & z1z\\
 z1z & zzz & zzz\\
 z51z & z1z5 & z1z5\\
 z5 & z5 & z51\\
@@ -115,15 +109,15 @@ zz & zz & zz\\
 Ground truth & Fixed model length = 3 & Unknown model length \\
 \hline
 154.txt & 111 & 11\\
-155.txt & 155 & 155z1\\
-156.txt & 151 & 15151\\
-157.txt & 1zz & 1zz15\\
-158.txt & z51 & z51z1\\
-159.txt & 551 & 55111\\
+155.txt & 155 & 155z\\
+156.txt & 151 & 151\\
+157.txt & 1zz & 1zz1\\
+158.txt & z51 & z51z\\
+159.txt & 551 & 551\\
 160.txt & 1zz & 1zz\\
-161.txt & z1z & z1zzz\\
-162.txt & zz5 & zz5z1\\
-163.txt & zz5 & zz5z1\\
+161.txt & z1z & z1z\\
+162.txt & zz5 & zz5\\
+163.txt & zz5 & zz5z\\
 164.txt & zzz & zz\\
 165.txt & zzz & zzz5z\\
 166.txt & zzz & zzz\\
@@ -132,7 +126,7 @@ Ground truth & Fixed model length = 3 & Unknown model length \\
 \end{table}
 
 \newpage
-16-symbol, 10-state HMM models trained on each class are used for this task. The HMMs are then concatenated to form different continuous models. During concatenation the final state's self-transition probability is set to 0.5, and its next state transition probability is also set to 0.5. Sequence lengths upto 5 are considered. So there are a total of $ 3^1 + 3^2 + 3^3 + 3^4 + 3^5 = 363$ HMM models against which each datapoint is tested.
+16-symbol, 10-state HMM models trained on each class are used for this task. The HMMs are then concatenated to form different continuous models. During concatenation the final state's self-transition probability is set to 0.5, and its next state transition probability is also set to 0.5. Sequence lengths upto 5 are considered. So there are a total of $ 3^1 + 3^2 + 3^3 + 3^4 + 3^5 = 363$ HMM models against which each datapoint is tested. In the case of a tie, the smallest length model is chosen.
 
 \section{Handwriting}
 \begin{figure}[h!]
@@ -143,7 +137,7 @@ Ground truth & Fixed model length = 3 & Unknown model length \\
 \end{figure}
 \subsection{HMM}
 \subsubsection{Isolated}
-\textbf{Isolated} : Four types of features are used : coordinates, first derivatives, second derivatives, curvature. Different combination of these features are used to prepare different datasets.
+Four types of features are used : coordinates, first derivatives, second derivatives, curvature. Different combination of these features are used to prepare different datasets.
 
 \begin{figure}[h!]
 \centering
@@ -176,7 +170,7 @@ lA & 0 & 5 & 25\\
 
 \newpage
 \textbf{Observations} : The curvature is the most important feature. The first and second derivatives capture the speed and acceleration of the stroke. Though the dataset has been generated in an online fashion by sampling points as they are written, the prediction happens offline, after the entire stroke has been recorded. Hence the speed and acceleration do not have any impact on the classification. In fact the second derivatives make the performance worse.\\
-There is a confusion between the characters ``dA" and ``lA". Since the curvature is the main feature, we need to study the variation in curvature across a stroke for each of these characters. Though ``bA" and ``dA" have very similar curvatures for the second half of the stroke, the first halves have inverse curvature. This is a discriminating aspect.
+There is a confusion between the characters ``dA" and ``lA". Since the curvature is the main feature, we need to study the variation in curvature across a stroke for each of these characters. The kind of curves that are traced on the paper while writing a letter, and the order in which these curves are traced carries the signature of a letter. In this respect, it appears that ``dA" and ``lA" have a lot of common curves that are traced in a similar manner. 
 \subsubsection{Continuous}
 \begin{figure}[h!]
 \centering
