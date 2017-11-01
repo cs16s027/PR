@@ -94,8 +94,7 @@ if __name__ == '__main__':
 
     all_data = []
     for label in labels:
-        print train_feats[label].shape
-        print test_feats[label].shape
+        print label, train_feats[label].shape
         for seq in train_feats[label]:
             all_data.append(seq)
     all_data = np.array(all_data)

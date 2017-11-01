@@ -93,8 +93,11 @@ for data_file in datas:
     predictions = []
     for model in models:
         model_file = 'models/cont/%s' % model
+        if len(model.split('.hmm')[0]) != 6:
+            predictions.append(-np.inf)
+            continue
         os.system('./scripts/hmm/test_hmm %s %s | grep "alpha for" | cut -d"=" -f2 | cut -d" " -f2 > temp' % (data_file, model_file))
         predictions.append(float(open('temp', 'r').readlines()[0].strip()))
         os.system('rm temp')
-    print data_file.split('/')[2].split('.seq')[0], models[np.argmax(predictions)].split('.hmm')[0]
+    print data_file.split('/')[2].split('.seq')[0], np.array(models)[np.argsort(predictions)[::-1][:5]]#.split('.hmm')[0]
 

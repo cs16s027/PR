@@ -5,7 +5,7 @@ from scipy.stats import norm
 
 # ROC computations
 def computeROC(results):
-    results = [line.strip().split() for line in open(results, 'r').readlines()]
+    results = [line.strip().split() for line in open(results, 'r').readlines()][1 : ]
     for index in range(len(results)):
         results[index][0] = int(results[index][0])
         for i in [1, 2, 3]:    

@@ -13,7 +13,7 @@
 }
 
 \usepackage{graphicx}
-\graphicspath{{/home/karthik/PR/assignment-4/}}
+\graphicspath{{/home/karthik/Work/MS/courses/PR/assignment-4/}}
 \setlength{\parindent}{0pt}
 
 \title{Assignment-4 : Pattern Recognition}
@@ -135,6 +135,14 @@ Ground truth & Fixed model length = 3 & Unknown model length \\
 16-symbol, 10-state HMM models trained on each class are used for this task. The HMMs are then concatenated to form different continuous models. During concatenation the final state's self-transition probability is set to 0.5, and its next state transition probability is also set to 0.5. Sequence lengths upto 5 are considered. So there are a total of $ 3^1 + 3^2 + 3^3 + 3^4 + 3^5 = 363$ HMM models against which each datapoint is tested.
 
 \section{Handwriting}
+\begin{figure}[h!]
+\centering
+\title{The characters}
+\includegraphics[width=\textwidth]{handwriting/plots/viz/train/bAdAlA.jpg}
+\caption{bA, dA, lA}
+\end{figure}
+\subsection{HMM}
+\subsubsection{Isolated}
 \textbf{Isolated} : Four types of features are used : coordinates, first derivatives, second derivatives, curvature. Different combination of these features are used to prepare different datasets.
 
 \begin{figure}[h!]
@@ -151,8 +159,68 @@ Ground truth & Fixed model length = 3 & Unknown model length \\
 \caption{HMM is labelled as $<\text{features}>\_<\text{symbols}>\_<\text{states}>$}
 \end{figure}
 
+\begin{table}[h!]
+\centering
+\begin{tabular}{ |p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|  }
+\hline
+\multicolumn{4}{|c|}{Confusion Matrix on Test Data} \\
+\hline
+ & bA & dA & lA \\
+\hline
+bA & 29 & 1 & 0\\
+dA & 0 & 30 & 0\\
+lA & 0 & 5 & 25\\
+\hline
+\end{tabular}
+\end{table}
+
 \newpage
 \textbf{Observations} : The curvature is the most important feature. The first and second derivatives capture the speed and acceleration of the stroke. Though the dataset has been generated in an online fashion by sampling points as they are written, the prediction happens offline, after the entire stroke has been recorded. Hence the speed and acceleration do not have any impact on the classification. In fact the second derivatives make the performance worse.\\
-\textbf{Continuous} : 
+There is a confusion between the characters ``dA" and ``lA". Since the curvature is the main feature, we need to study the variation in curvature across a stroke for each of these characters. Though ``bA" and ``dA" have very similar curvatures for the second half of the stroke, the first halves have inverse curvature. This is a discriminating aspect.
+\subsubsection{Continuous}
+\begin{figure}[h!]
+\centering
+\title{1, 2 and 3}
+\includegraphics[width=\textwidth]{handwriting/plots/viz/123.jpg}
+\end{figure}
+\begin{table}[h!]
+\centering
+\begin{tabular}{ |p{2.5cm}|p{2.5cm}|p{3.5cm}|  }
+\hline
+\multicolumn{3}{|c|}{Results for 1, 2 and 3} \\
+\hline
+Ground truth & Fixed model length = 3 & Unknown model length \\
+\hline
+dA--bA--bA (1) & bA--dA--dA, bA--dA--bA, bA--dA--lA  & bA--dA--bA\\
+bA--lA--lA (2) & \textbf{bA--lA--lA}, bA--lA--dA, bA--lA--bA & bA--lA--lA--bA--dA\\
+bA--bA--lA (3) & dA--bA--bA & dA--bA--bA--dA\\
+\hline
+\end{tabular}
+\end{table}
+
+
+\subsection{DTW}
+\begin{figure}[h!]
+\centering
+\title{DTW-kNN classifier}
+\includegraphics[width=\textwidth]{handwriting/plots/dtw/roc_det_x,y,kt.jpg}
+\caption{Each model is labelled by the number of nearest neighbours chosen}
+\end{figure}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{ |p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|  }
+\hline
+\multicolumn{4}{|c|}{Confusion Matrix on Test Data} \\
+\hline
+ & bA & dA & lA \\
+\hline
+bA & 28 & 2 & 0\\
+dA & 0 & 22 & 8\\
+lA & 1 & 0 & 29\\
+\hline
+\end{tabular}
+\end{table}
+
 
 \end{document}
