@@ -8,56 +8,102 @@ def y(x, w):
         return 1
     return -1
 
-def trainPerceptron(positive, negative):
-    data = []
-    for p in positive:
-        p = np.append(p, 1)
-        data.append((p, 1))
-    for n in negative:
-        n = np.append(n, 1)
-        data.append((n, -1))
-    np.random.shuffle(data)
-    print len(data)
-    w = np.zeros((data[0][0].shape[0]))
+def validate(test, weights):
+    correct = 0.0
+    count = 0.0
+    labels = ['0', '1', '2']
+    for label in labels:
+        for image in test[label][:]:
+            count += 1
+            image_vec = []
+            for vec in image:
+                vec_ = np.append(vec, 1)
+                vec_vec = []
+                for plabel in labels: 
+                    vec_vec.append(np.dot(weights[plabel], vec_))
+                image_vec.append(vec_vec)
+            image_vec = np.array(image_vec)
+            image_pred = np.mean(image_vec, axis = 0)
+            pred_label = np.argmax(image_pred)
+            if int(label) == int(pred_label):
+                correct += 1
+    return correct / count * 100
 
+def softmax(vec):
+    m = np.max(vec)
+    s = np.sum(np.exp(vec - m))
+    vec_ = []
+    for v in vec:
+        vec_.append(np.exp(v - m) / s)
+    return vec_
 
-    epochs = 1
+def testData(test, weights, testf):
+    testf = open(testf, 'w')
+    labels = ['0', '1', '2']
+    for label in labels:
+        for image in test[label][:]:
+            image_vec = []
+            for vec in image:
+                vec_ = np.append(vec, 1)
+                vec_vec = []
+                for plabel in labels: 
+                    vec_vec.append(np.dot(weights[plabel], vec_))
+                image_vec.append(vec_vec)
+            image_vec = np.array(image_vec)
+            image_pred = np.mean(image_vec, axis = 0)
+            pred_label = np.argmax(image_pred)
+            probs = softmax(image_pred)
+            testf.write(' '.join([label] + [str(prob) for prob in probs]) + '\n')
+    testf.close()
+
+def trainPerceptron(train, valid):
+    labels = ['0', '1', '2']
+    weights = {'0' : '', '1' : '', '2' : ''}
+    D = train[0][0].shape[0]
+    for label in labels:
+        weights[label] = np.zeros(D)
+    epochs = 70
+    eta = 1.0
+    max_score = 0.0
     for epoch in np.arange(1, epochs + 1, 1):
         error = 0.0
-        for point in data:
+        for point in train:
+            ys = []
             x, label = point
-            pred = y(x, w) * label
-            if pred <= 0:
-                error += -pred
-                w += label * x
-        print 'Error after %s epochs = %s' % (epoch, error)
-    return w
-        
-
-train = h5py.File('data/train.h5', 'r')
-labels = ['0', '1', '2']
-weights = dict()
-for label in labels:
-    plabel = label
-    nlabels = list(set(labels) - set(label))
-    positive = train[plabel][:]
-    negative = np.concatenate([ train[nlabels[0]][:], train[nlabels[1][:]] ])
-    np.random.shuffle(positive)
-    np.random.shuffle(negative)
-    positive = np.reshape(positive, (-1, 23))
-    negative = np.reshape(negative, (-1, 23))
-    print positive.shape, negative.shape
-    weights[plabel] = trainPerceptron(positive, negative)
-    
-test = h5py.File('data/test.h5', 'r')
-for label in labels:
-    images = test[label][:]
-    for image in images:
-        pred_image = []
-        for vector in image:
-            pred_vector = []
             for plabel in labels:
-                pred_vector.append(y(vector, weights[plabel]))
-            pred_image.append(np.argmax(pred_vector))
-            
-
+                ys.append(np.dot(weights[plabel], x))
+            pred = np.argmax(ys)
+            if pred != int(label):
+                pred_ = str(pred)
+                weights[pred_] -= eta * x
+                weights[label] += eta * x
+                error += ys[pred]
+        score = validate(valid, weights)
+        if score > max_score:
+            max_score = score
+            print max_score
+            wfile = h5py.File('models/best.h5', 'w')
+            for label in labels: 
+                wfile.create_dataset(data = weights[label], name = label, shape = weights[label].shape, dtype = weights[label].dtype)
+            wfile.close()
+        print 'Error after %s epochs = %s' % (epoch, error)
+    return weights
+#'''
+# Training and validation
+train = h5py.File('data/train.h5', 'r')
+valid = h5py.File('data/valid.h5', 'r')
+labels = ['0', '1', '2']
+data = []
+for label in labels:
+    train_ = np.reshape(train[label][:], (-1, 23))
+    for vec in train_:
+        vec_ = np.append(vec, 1)
+        data.append((vec_, label))
+np.random.shuffle(data)
+weights = trainPerceptron(data, valid)
+# Testing
+test = h5py.File('data/test.h5', 'r')
+weights_ = h5py.File('models/best.h5', 'r')
+weights = {'0' : weights_['0'][:], '1' : weights_['1'][:], '2' : weights_['2'][:]}
+print validate(test, weights)
+testData(test, weights, 'results/test_1.0_68.txt')
