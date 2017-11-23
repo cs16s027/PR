@@ -5,8 +5,8 @@ from scipy.stats import norm
 
 # ROC computations
 def computeROC(results):
-    #mapping = {'1' : 0, '5' : 1, 'z' : 2}
-    mapping = {'0' : 0, '1' : 1, '2' : 2}
+    mapping = {'1' : 0, '5' : 1, 'z' : 2}
+    #mapping = {'0' : 0, '1' : 1, '2' : 2}
     results = [line.strip().split() for line in open(results, 'r').readlines()]
     for index in range(len(results)):
         results[index][0] = mapping[results[index][0]]

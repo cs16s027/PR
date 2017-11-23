@@ -5,7 +5,6 @@ from sklearn.externals import joblib
 
 _, feat_indicator = sys.argv
 
-window = 50
 labels = ['bA', 'dA', 'lA']
 C = 1.0
 

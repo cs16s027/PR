@@ -1,1 +1,4 @@
-\contentsline {section}{\numberline {1}Perceptron}{2}{section.1}
+\contentsline {section}{\numberline {1}Fisher-LDA}{2}{section.1}
+\contentsline {section}{\numberline {2}Perceptrons}{3}{section.2}
+\contentsline {section}{\numberline {3}SVMs}{4}{section.3}
+\contentsline {section}{\numberline {4}Neural Networks}{5}{section.4}
