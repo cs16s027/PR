@@ -101,7 +101,7 @@ def plotDETs(rates_list, plot, models):
 
 if __name__ == '__main__':
     rates_list = []
-    models = ['lda_1', 'lda_2']
+    models = ['PCA_5', 'PCA_12', 'PCA_23']
     for model in models:
         # Get the ROC data-points
         rates = computeROC('results/%s.txt' % model)

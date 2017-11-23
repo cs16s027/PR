@@ -5,7 +5,8 @@ from scipy.stats import norm
 
 # ROC computations
 def computeROC(results):
-    mapping = {'1' : 0, '5' : 1, 'z' : 2}
+    #mapping = {'1' : 0, '5' : 1, 'z' : 2}
+    mapping = {'0' : 0, '1' : 1, '2' : 2}
     results = [line.strip().split() for line in open(results, 'r').readlines()]
     for index in range(len(results)):
         results[index][0] = mapping[results[index][0]]
@@ -20,6 +21,7 @@ def computeROC(results):
     tprs, fprs = [], []
 
     # Choose one threshold - one point on the ROC curve
+    epsilon = 0.00001
     for threshold in thresholds:
         roc = {}
         # Choose the target class 
@@ -41,7 +43,7 @@ def computeROC(results):
                     else:
                         tn += 1
             
-            roc[roc_label] = (tp / (tp + fn), fp / (fp + tn))
+            roc[roc_label] = (tp / (tp + fn + epsilon), fp / (fp + tn + epsilon))
         # Macro average of the ROC values
         tprs.append(np.mean([roc[roc_label][0] for roc_label in [0, 1, 2]]))
         fprs.append(np.mean([roc[roc_label][1] for roc_label in [0, 1, 2]]))
