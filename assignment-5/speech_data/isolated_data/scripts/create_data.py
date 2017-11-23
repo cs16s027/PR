@@ -16,6 +16,14 @@ def writeData(stage, stage_name):
             seqs.append(seq)
         seqs = np.asarray(seqs)
         np.save('data/proc/%s/%s.npy' % (stage_name, label), seqs)
+
+def preprocessData(X):
+    X_mean = np.mean(X, axis = 0)
+    X = X - X_mean
+    X_square = X * X
+    var = np.sum(X_square, axis = 0) / (X.shape[0] - 1)
+    sig = np.sqrt(var)
+    return X_mean, sig
   
 if __name__ == '__main__':
 
